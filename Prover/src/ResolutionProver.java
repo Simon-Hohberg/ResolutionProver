@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -103,8 +104,9 @@ public class ResolutionProver {
 		updateResolutionMap(disjunction);
 		
 		//iterate over formulas in this disjunction
-		for (int i = 0; i < disjunction.formulae.size(); i++) {
-			Formula form = disjunction.formulae.get(i);
+		Iterator<Formula> iterator = disjunction.formulae.iterator();
+		while (iterator.hasNext()) {
+			Formula form = iterator.next();
 			
 			switch (form.getKind()) {
 			
@@ -112,7 +114,7 @@ public class ResolutionProver {
 				
 				//assuming that all elements are atomic if the last element is atomic
 				//this is the end of the recursion
-				if (i == disjunction.formulae.size() - 1)
+				if (!iterator.hasNext())
 					return;
 				//atomic formula is not the last, there might be further formulas
 				//that have to be reduced
@@ -123,7 +125,7 @@ public class ResolutionProver {
 				//apply neg neg rule
 				if (tptp_tester.isNegNegFormula(form)) {
 					Formula newForm = ((Negation)((Negation) form).getArgument()).getArgument();
-					newDisjunction = replaceElement(disjunction, i, newForm);
+					newDisjunction = replaceElement(disjunction, form, newForm);
 					newDisjunction.rule = Rule.NEGNEG;
 					newDisjunction.origin = new ArrayList<Integer>();
 					newDisjunction.origin.add(currentIndex);
@@ -137,7 +139,7 @@ public class ResolutionProver {
 				} else if ((((Negation) form).getArgument()).getKind() == Kind.Atomic) {
 					//similar to Atomic case
 					//second case for the end of the recursion
-					if (i == disjunction.formulae.size() - 1)
+					if (!iterator.hasNext())
 						return;
 					//again, there might be further not atomic formulas after this one
 					continue;	//continue iteration
@@ -151,13 +153,13 @@ public class ResolutionProver {
 					Formula alpha1 = tptp_tester.getAlpha1(form);
 					Formula alpha2 = tptp_tester.getAlpha2(form);
 					//recursively reduce one of the alphas and save the other one for later reduction
-					Disjunction alpha2Disjunction = replaceElement(disjunction, i, alpha2);
+					Disjunction alpha2Disjunction = replaceElement(disjunction, form, alpha2);
 					alpha2Disjunction.origin = new ArrayList<Integer>();
 					alpha2Disjunction.origin.add(currentIndex);
 					alpha2Disjunction.rule = Rule.ALPHA2;
 					workingQueue.add(alpha2Disjunction);	//TODO not added to resolution map, yet
 					
-					newDisjunction = replaceElement(disjunction, i, alpha1);
+					newDisjunction = replaceElement(disjunction, form, alpha1);
 					newDisjunction.rule = Rule.ALPHA1;
 					newDisjunction.origin = new ArrayList<Integer>();
 					newDisjunction.origin.add(currentIndex);
@@ -178,8 +180,8 @@ public class ResolutionProver {
 					 * contains the betas, recursively reduce this new 
 					 * disjunction
 					 */
-					newDisjunction = replaceElement(disjunction, i, beta1);
-					newDisjunction.formulae.add(i+1, beta2);
+					newDisjunction = replaceElement(disjunction, form, beta1);
+					newDisjunction.formulae.add(beta2);
 					newDisjunction.rule = Rule.BETA;
 					newDisjunction.origin = new ArrayList<Integer>();
 					newDisjunction.origin.add(currentIndex);
@@ -224,24 +226,19 @@ public class ResolutionProver {
 		}
 	}
 
-	private List<Formula> replaceElement(List<Formula> formulae, int i, Formula newForm) {
-		List<Formula> newFormulae = new ArrayList<Formula>();
-		for (int j = 0; j < formulae.size(); j++) {
-			if (j == i) {
-				newFormulae.add(newForm);
-			} else {
-				newFormulae.add(formulae.get(j));
-			}
-		}
+	private Set<Formula> replaceElement(Set<Formula> formulae, Formula replacedForm, Formula newForm) {
+		Set<Formula> newFormulae = new HashSet<Formula>(formulae);
+		newFormulae.remove(replacedForm);
+		newFormulae.add(newForm);
 		return newFormulae;
 	}
 	
-	private Disjunction replaceElement(Disjunction disjunction, int i, Formula newForm) {
-		return new Disjunction(replaceElement(disjunction.formulae, i, newForm));
+	private Disjunction replaceElement(Disjunction disjunction, Formula replacedForm, Formula newForm) {
+		return new Disjunction(replaceElement(disjunction.formulae, replacedForm, newForm));
 	}
 	
 	private Disjunction applyResolution(Disjunction disjunction1, Disjunction disjunction2, Formula form) {
-		List<Formula> newFormulae = new ArrayList<Formula>();
+		Set<Formula> newFormulae = new HashSet<Formula>();
 		for (Formula f : disjunction1.formulae) {
 			if (f.equals(form)) 
 				continue;
