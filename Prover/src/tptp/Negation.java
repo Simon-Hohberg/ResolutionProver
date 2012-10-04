@@ -17,8 +17,17 @@ public class Negation extends Formula {
   public boolean equals(Object obj) {
     if (obj == null) return false;
     if (this == obj) return true;
-    return _kind == ((Formula)obj)._kind && 
+    boolean returnValue = _kind == ((Formula)obj)._kind && 
     _argument.equals(((Negation)obj)._argument);
+    
+    if (!returnValue && obj.toString().equals(this.toString()))
+    	throw new IllegalStateException("Negations not equal although they should be");
+    
+    if (returnValue && obj.hashCode() != this.hasCode()) {
+    	throw new IllegalStateException("Negations equal, but hashes differ");
+    }
+    
+	return returnValue;
   }
 
   public int hasCode() { return 31 * _kind.hashCode() + _argument.hashCode(); }

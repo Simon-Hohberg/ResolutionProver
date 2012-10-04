@@ -75,7 +75,6 @@ public class ResolutionProver {
 	}
 
 	private void reduce(Disjunction disjunction) {
-		
 		int currentIndex = resolutionList.size();	//we are always working on the last disjunction, index starts at 1
 		
 		//empty disjunction => tautology
@@ -98,18 +97,8 @@ public class ResolutionProver {
 				newDisjunction.origin.add(disjunction.index);
 				newDisjunction.origin.add(resolutionDisjunction.index);
 				newDisjunction.rule = Rule.RESOULUTION;
-				//index will be added after the disjunction is removed from the queue
-				if (resolutionIterator.hasNext())
-					workingQueue.add(newDisjunction);
+				workingQueue.add(newDisjunction);
 			}
-			
-			newDisjunction.index = currentIndex + 1;
-			resolutionList.add(newDisjunction);
-			
-			updateResolutionMap(disjunction);
-			
-			reduce(newDisjunction);
-			return;
 		}
 		
 		updateResolutionMap(disjunction);
@@ -221,7 +210,7 @@ public class ResolutionProver {
 			Set<Disjunction> disjunctions = resolutionMap.get(negFormula);
 			if (disjunctions != null)
 				if (!disjunctions.isEmpty())
-					return negFormula;
+					return negFormula.getKind() == Kind.Negation ? formula : negFormula;
 		}
 		return null;
 	}
@@ -240,7 +229,13 @@ public class ResolutionProver {
 	private Set<Formula> replaceElement(Set<Formula> formulae, Formula replacedForm, Formula newForm) {
 		Set<Formula> newFormulae = new HashSet<Formula>(formulae);
 		newFormulae.remove(replacedForm);
-		newFormulae.add(newForm);
+		//prevent positives and negatives in one disjunctions
+		Formula negation = newForm.getKind() == Kind.Negation ? ((Negation)newForm).getArgument() : new Negation(newForm);
+		if (newFormulae.contains(negation)) {
+			newFormulae.remove(negation);
+		} else {
+			newFormulae.add(newForm);
+		}
 		return newFormulae;
 	}
 	
@@ -264,7 +259,13 @@ public class ResolutionProver {
 			else if (f.getKind() == Kind.Negation)
 				if (((Negation)f).getArgument().equals(form))
 					continue;
-			newFormulae.add(f);
+			//prevent positives and negatives in one disjunction
+			Formula negation = f.getKind() == Kind.Negation ? ((Negation)f).getArgument() : new Negation(f);
+			if (newFormulae.contains(negation)) {
+				newFormulae.remove(negation);
+			} else {
+				newFormulae.add(f);
+			}
 		}
 		return new Disjunction(newFormulae);
 	}
