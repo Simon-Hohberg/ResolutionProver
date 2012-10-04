@@ -2,13 +2,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import tptp.Formula;
 
 
-public class Disjunction {
+public class Disjunction implements Comparable<Disjunction> {
 
-	public Set<Formula> formulae;
+	public SortedSet<Formula> formulae;
 	
 	/**
 	 * Index of this disjunction
@@ -26,13 +28,13 @@ public class Disjunction {
 	public Rule rule;
 	
 	public Disjunction(Formula... formulae) {
-		this.formulae = new HashSet<Formula>();
+		this.formulae = new TreeSet<Formula>();
 		for (Formula formula : formulae) {
 			this.formulae.add(formula);
 		}
 	}
 	
-	public Disjunction(Set<Formula> formulae) {
+	public Disjunction(SortedSet<Formula> formulae) {
 		this.formulae = formulae;
 	}
 	
@@ -42,7 +44,7 @@ public class Disjunction {
 		this.origin.add(origin);
 	}
 	
-	public Disjunction(int origin, Set<Formula> formulae) {
+	public Disjunction(int origin, SortedSet<Formula> formulae) {
 		this.formulae = formulae;
 		this.origin = new ArrayList<Integer>();
 		this.origin.add(origin);
@@ -55,7 +57,7 @@ public class Disjunction {
 		this.index = index;
 	}
 	
-	public Disjunction(int index, int origin, Set<Formula> formulae) {
+	public Disjunction(int index, int origin, SortedSet<Formula> formulae) {
 		this.formulae = formulae;
 		this.origin = new ArrayList<Integer>();
 		this.origin.add(origin);;
@@ -79,5 +81,10 @@ public class Disjunction {
 			builder.append(" ");
 		builder.append(String.format("(derived from %s by applying %s)", Util.collectionToString(origin), rule.humanReadable));
 		return builder.toString();
+	}
+	
+	@Override
+	public int compareTo(Disjunction o) {
+	  return new Integer(index).compareTo(o.index);
 	}
 }

@@ -1,8 +1,6 @@
 package tptp;
 
-public class Formula 
-  implements TptpParserOutput.FofFormula
-  {
+public class Formula implements Comparable<Formula>, TptpParserOutput.FofFormula {
     public Kind getKind() { return _kind; }
     
     /** @param obj must be convertible to Formula, can be null */
@@ -45,5 +43,12 @@ public class Formula
     //================== Attributes: =========================
     
     protected Kind _kind;
+
+
+
+    @Override
+    public int compareTo(Formula o) {
+      return toString().compareTo(o.toString());
+    }
     
   }
