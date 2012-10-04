@@ -84,19 +84,30 @@ public class ResolutionProver {
 			return;
 		}
 		
-		Disjunction newDisjunction;
+		Disjunction newDisjunction = null;
 		
 		//check if resolution rule can be applied
 		Formula resolutionFormula = getFormulaForResolution(disjunction);
 		if (resolutionFormula != null) {
-			Disjunction resolutionDisjunction = resolutionMap.get(resolutionFormula).iterator().next();
-			newDisjunction = applyResolution(disjunction, resolutionDisjunction, resolutionFormula);
-			newDisjunction.origin = new ArrayList<Integer>();
-			newDisjunction.origin.add(disjunction.index);
-			newDisjunction.origin.add(resolutionDisjunction.index);
-			newDisjunction.rule = Rule.RESOULUTION;
+			Set<Disjunction> resolutionDisjunctions = resolutionMap.get(resolutionFormula);
+			Iterator<Disjunction> resolutionIterator = resolutionDisjunctions.iterator();
+			while (resolutionIterator.hasNext()) {
+				Disjunction resolutionDisjunction = resolutionIterator.next();
+				newDisjunction = applyResolution(disjunction, resolutionDisjunction, resolutionFormula);
+				newDisjunction.origin = new ArrayList<Integer>();
+				newDisjunction.origin.add(disjunction.index);
+				newDisjunction.origin.add(resolutionDisjunction.index);
+				newDisjunction.rule = Rule.RESOULUTION;
+				//index will be added after the disjunction is removed from the queue
+				if (resolutionIterator.hasNext())
+					workingQueue.add(newDisjunction);
+			}
+			
 			newDisjunction.index = currentIndex + 1;
 			resolutionList.add(newDisjunction);
+			
+			updateResolutionMap(disjunction);
+			
 			reduce(newDisjunction);
 			return;
 		}
