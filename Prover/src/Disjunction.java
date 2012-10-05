@@ -1,7 +1,5 @@
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -86,5 +84,21 @@ public class Disjunction implements Comparable<Disjunction> {
 	@Override
 	public int compareTo(Disjunction o) {
 	  return new Integer(index).compareTo(o.index);
+	}
+	
+	public boolean isEmpty() {
+		return formulae.isEmpty();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Disjunction))
+			return false;
+		Disjunction comp = (Disjunction) obj;
+		for (Formula f : formulae) {
+			if (!comp.formulae.contains(f))
+				return false;
+		}
+		return true;
 	}
 }
