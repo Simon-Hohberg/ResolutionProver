@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 
 import tptp.AnnotatedClause;
 import tptp.AnnotatedFormula;
@@ -149,13 +150,14 @@ public class tptp_tester {
 	     // ********************************************************************************* //
 	     // Added by Christoph Benzmueller, Sep 2012
 	     // ********************************************************************************* //
+	     List<Formula> formulae = new LinkedList<Formula>();
 	     for (TopLevelItem item : allParsed) {
 	    	Formula formula = ((AnnotatedFormula)item).getFormula();
-	 	    ResolutionProver prover = new ResolutionProver(formula);
-	 	    prover.prove();
-	 	    prover.printTrace();
+	    	formulae.add(formula);
 	     }             
-
+	     ResolutionProver prover = new ResolutionProver(formulae);
+	 	   prover.prove();
+	 	   prover.printTrace();
 	}
          // general ANTLR exception. It is enough to catch all ANTRL exceptions
 	catch(antlr.ANTLRException e) {
@@ -1248,8 +1250,8 @@ public class tptp_tester {
 	case Formula: 
 	    Formula formula = ((AnnotatedFormula)item).getFormula();
 	    
-	    ResolutionProver prover = new ResolutionProver(formula);
-	    prover.prove();
+	    //ResolutionProver prover = new ResolutionProver(formula);
+	    //prover.prove();
 	    
 	    Formula equivalentFreeFormula = replaceEquivalences(formula);
 	    int res1 = formulaDegreeAsInFitting(equivalentFreeFormula);
