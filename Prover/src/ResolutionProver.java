@@ -7,10 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import tptp.Binary;
 import tptp.Formula;
 import tptp.Kind;
 import tptp.Negation;
+import tptp.TptpParserOutput.BinaryConnective;
 
 
 public class ResolutionProver {
@@ -21,12 +25,16 @@ public class ResolutionProver {
 	
 	private boolean isTautology;
 
-	public ResolutionProver(Formula formula) {
+	public ResolutionProver(List<Formula> formulae) {
+	  Formula[] nformulae = new Formula[formulae.size()];
+	  for (int i = 0; i < formulae.size(); i++) {
+	    nformulae[i] = new Negation(formulae.get(i));
+	  }
 		resolutionList = new ArrayList<Disjunction>();
 		workingQueue = new LinkedList<Disjunction>();
 		resolutionMap = new HashMap<Formula, Set<Disjunction>>();
 		//negate formula
-		Disjunction disjunction = new Disjunction(1, -1, new Negation(formula));
+		Disjunction disjunction = new Disjunction(1, -1, nformulae);
 		//initialize
 		workingQueue.add(disjunction);
 		isTautology = false;
@@ -219,15 +227,15 @@ public class ResolutionProver {
 		for (Formula formula : disjunction.formulae) {
 			Set<Disjunction> disjunctions = resolutionMap.get(formula);
 			if (disjunctions == null) {
-				disjunctions = new HashSet<Disjunction>();
+				disjunctions = new TreeSet<Disjunction>();
 				resolutionMap.put(formula, disjunctions);
 			}
 			disjunctions.add(disjunction);
 		}
 	}
 
-	private Set<Formula> replaceElement(Set<Formula> formulae, Formula replacedForm, Formula newForm) {
-		Set<Formula> newFormulae = new HashSet<Formula>(formulae);
+	private SortedSet<Formula> replaceElement(Set<Formula> formulae, Formula replacedForm, Formula newForm) {
+		SortedSet<Formula> newFormulae = new TreeSet<Formula>(formulae);
 		newFormulae.remove(replacedForm);
 		//prevent positives and negatives in one disjunctions
 		Formula negation = newForm.getKind() == Kind.Negation ? ((Negation)newForm).getArgument() : new Negation(newForm);
@@ -244,7 +252,7 @@ public class ResolutionProver {
 	}
 	
 	private Disjunction applyResolution(Disjunction disjunction1, Disjunction disjunction2, Formula form) {
-		Set<Formula> newFormulae = new HashSet<Formula>();
+		SortedSet<Formula> newFormulae = new TreeSet<Formula>();
 		for (Formula f : disjunction1.formulae) {
 			if (f.equals(form)) 
 				continue;
