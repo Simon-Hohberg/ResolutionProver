@@ -19,4 +19,14 @@ public class Util {
 		}
 		return builder.toString();
 	}
+
+	public static int calculateCommentIndent(Collection<Disjunction> disjunctions) {
+		int maxLength = 0;
+		for (Disjunction disjunction : disjunctions) {
+			int length = disjunction.formulae.toString().length();
+			if (length > maxLength)
+				maxLength = length;
+		}
+		return maxLength + 2;
+	}
 }
