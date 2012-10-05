@@ -10,9 +10,11 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import tptp.Binary;
 import tptp.Formula;
 import tptp.Kind;
 import tptp.Negation;
+import tptp.TptpParserOutput.BinaryConnective;
 
 
 public class ResolutionProver {
@@ -23,12 +25,16 @@ public class ResolutionProver {
 	
 	private boolean isTautology;
 
-	public ResolutionProver(Formula formula) {
+	public ResolutionProver(List<Formula> formulae) {
+	  Formula[] nformulae = new Formula[formulae.size()];
+	  for (int i = 0; i < formulae.size(); i++) {
+	    nformulae[i] = new Negation(formulae.get(i));
+	  }
 		resolutionList = new ArrayList<Disjunction>();
 		workingQueue = new LinkedList<Disjunction>();
 		resolutionMap = new HashMap<Formula, Set<Disjunction>>();
 		//negate formula
-		Disjunction disjunction = new Disjunction(1, -1, new Negation(formula));
+		Disjunction disjunction = new Disjunction(1, -1, nformulae);
 		//initialize
 		workingQueue.add(disjunction);
 		isTautology = false;
