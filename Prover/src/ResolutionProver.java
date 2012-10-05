@@ -80,7 +80,7 @@ public class ResolutionProver {
 	 */
 	private void reduce(Disjunction disjunction) {
 		int currentIndex = trace.size();	//we are always working on the last disjunction, index starts at 1
-		printTrace();
+
 		if (isTautology)
 			return;
 		
