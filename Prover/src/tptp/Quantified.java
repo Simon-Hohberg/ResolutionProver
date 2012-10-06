@@ -31,14 +31,6 @@ public class Quantified extends Formula {
     _matrix.equals(((Quantified)obj)._matrix);
   }
 
-  public int hashCode() {
-    int res = _kind.hashCode();
-    res = 31 * res + _quantifier.hashCode();
-    res = 31 * res + _variable.hashCode();
-    res = 31 * res + _matrix.hashCode();
-    return res;
-  }
-
 
   public String toString() { return toString(new String("")); }
 

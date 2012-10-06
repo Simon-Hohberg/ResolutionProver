@@ -41,14 +41,6 @@ implements TptpParserOutput.AtomicFormula
   }
 
 
-  public int hashCode() {
-    int res = _kind.hashCode();
-    res = 31 * res + _predicate.hashCode();
-    res = 31 * res;
-    if (_arguments != null) res += _arguments.hashCode();
-    return res;
-  }
-
 
   public String toString() { return toString(new String("")); }
 

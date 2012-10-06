@@ -1,3 +1,4 @@
+package resolution_prover;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,12 +9,14 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import tptp.Atomic;
 import tptp.Formula;
 import tptp.Kind;
 import tptp.Negation;
+import tptp.tptp_tester;
 
 
 public class ResolutionProver {
@@ -31,8 +34,7 @@ public class ResolutionProver {
 	  }
 		trace = new TreeSet<Disjunction>();
 		workingQueue = new LinkedList<Disjunction>();
-		resolutionMap = new HashMap<Formula, Set<Disjunction>>();
-		//negate formula
+		resolutionMap = new HashMap<Formula, Set<Disjunction>>(); // TODO optimize hashCode() for Formula etc., make it semantic
 		Disjunction disjunction = new Disjunction(1, -1, nformulae);
 		//initialize
 		workingQueue.add(disjunction);
@@ -87,11 +89,9 @@ public class ResolutionProver {
 		if (isTautology = disjunction.isEmpty())
 			return;
 		
-		//check if resolution rule can be applied
-		if (canApplyResolution(disjunction))
-			doResultion(disjunction);
-		
 		updateResolutionMap(disjunction);
+		
+		doResolution(disjunction);
 		
 		//expand disjunction and do recursion
 		Disjunction newDisjunction = doExpansion(disjunction, currentIndex);
@@ -113,7 +113,7 @@ public class ResolutionProver {
 			Formula form = iterator.next();
 			
 			switch (form.getKind()) {
-			
+			// TODO literal (~$true...)
 			case Atomic:
 				
 				//assuming that all elements are atomic if the last element is atomic
@@ -154,6 +154,7 @@ public class ResolutionProver {
 				throw new IllegalStateException("Unexpected kind of formula " + form);
 			}
 		}
+		assert false;
 		return null;
 	}
 
@@ -222,12 +223,14 @@ public class ResolutionProver {
 	 * and adds the newly created {@link Disjunction}s to the working queue.
 	 * @param disjunction
 	 */
-	private void doResultion(Disjunction disjunction) {
+	private void doResolution(Disjunction disjunction) {
 		Formula resolutionFormula = getFormulaForResolution(disjunction);
 		if (resolutionFormula == null)
 			return;
 		//get all disjunctions with which resolution can be done
-		Set<Disjunction> resolutionDisjunctions = resolutionMap.get(resolutionFormula);
+		Set<Disjunction> resolutionDisjunctions = resolutionMap.get(new Negation(resolutionFormula));
+		if (resolutionDisjunctions == null)
+		  return;
 		for (Disjunction resolutionDisjunction : resolutionDisjunctions) {
 			if (resolutionDisjunction.equals(disjunction))
 				continue;
@@ -353,18 +356,6 @@ public class ResolutionProver {
 			}
 		}
 		return new Disjunction(newFormulae);
-	}
-	
-	/**
-	 * Checks if there is any disjunction that shares a negated {@link Formula} of
-	 * one of the {@link Formula}e of the provided {@link Disjunction}.
-	 * This {@link Formula} does not have to be {@link Atomic}, but can be more
-	 * complex.
-	 * @param disjunction
-	 * @return
-	 */
-	private boolean canApplyResolution(Disjunction disjunction) {
-		return getFormulaForResolution(disjunction) != null;
 	}
 	
 	private void addToWorkingQueue(Disjunction disjunction) {

@@ -1,3 +1,4 @@
+package resolution_prover;
 import java.util.Collection;
 import java.util.Iterator;
 

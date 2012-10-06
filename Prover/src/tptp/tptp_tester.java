@@ -1,3 +1,4 @@
+package tptp;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -7,22 +8,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
-import tptp.AnnotatedClause;
-import tptp.AnnotatedFormula;
-import tptp.Atomic;
-import tptp.Binary;
-import tptp.Clause;
-import tptp.Formula;
-import tptp.IncludeDirective;
-import tptp.Literal;
-import tptp.Negation;
-import tptp.Quantified;
-import tptp.SimpleTptpParserOutput;
-import tptp.Term;
-import tptp.TopLevelItem;
-import tptp.TptpLexer;
-import tptp.TptpParser;
-import tptp.TptpParserOutput;
+import resolution_prover.ResolutionProver;
 
 /**
  * This is a program to test TPTP file for being syntactically and semantically

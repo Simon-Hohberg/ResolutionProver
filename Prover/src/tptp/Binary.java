@@ -31,14 +31,6 @@ public class Binary extends Formula {
     _rhs.equals(((Binary)obj)._rhs);
   }
 
-  public int hashCode() {
-    int res = _kind.hashCode();
-    res = 31 * res + _connective.hashCode();
-    res = 31 * res + _lhs.hashCode();
-    res = 31 * res + _rhs.hashCode();
-    return res;
-  }
-
 
   public String toString() { return toString(new String("")); }
 

@@ -23,14 +23,12 @@ public class Negation extends Formula {
     if (!returnValue && obj.toString().equals(this.toString()))
     	throw new IllegalStateException("Negations not equal although they should be");
     
-    if (returnValue && obj.hashCode() != this.hasCode()) {
+    if (returnValue && obj.hashCode() != this.hashCode()) {
     	throw new IllegalStateException("Negations equal, but hashes differ");
     }
     
 	return returnValue;
   }
-
-  public int hasCode() { return 31 * _kind.hashCode() + _argument.hashCode(); }
 
   public String toString() { return toString(new String("")); }
 

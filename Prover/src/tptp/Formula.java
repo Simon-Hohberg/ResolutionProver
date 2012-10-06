@@ -51,4 +51,9 @@ public class Formula implements Comparable<Formula>, TptpParserOutput.FofFormula
       return toString().compareTo(o.toString());
     }
     
+    @Override
+    public int hashCode() {
+      return toString().hashCode();
+    }
+    
   }
