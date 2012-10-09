@@ -67,11 +67,15 @@ public class Atomic extends Formula implements TptpParserOutput.AtomicFormula {
     }
     return res;
   }
-  
+
   @Override
   public int hashCode() {
-    // TODO handle _arguments
-    return _predicate.hashCode();
+    int result = 31 * _predicate.hashCode();
+    if (_arguments != null)
+      for (int i = 0; i < _arguments.size(); i++) {
+        result += (i + 1) * _arguments.get(i).hashCode();
+      }
+    return result;
   }
 
   private String _predicate;

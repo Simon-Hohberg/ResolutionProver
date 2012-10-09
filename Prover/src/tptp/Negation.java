@@ -45,8 +45,8 @@ public class Negation extends Formula {
 
   @Override
   public int hashCode() {
-    return _argument._kind == Kind.Negation ? ((Negation) _argument).hashCode()
-        : _argument.hashCode() + 1;
+    return _argument._kind == Kind.Negation ? ((Negation) _argument)._argument.hashCode()
+        : (_argument.hashCode() + 1);
   }
 
   private Formula _argument;

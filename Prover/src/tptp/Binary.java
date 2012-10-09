@@ -49,7 +49,7 @@ public class Binary extends Formula {
         rhs_prime = 41;
     }
     
-    return _connective.hashCode() + lhs_prime * _lhs.hashCode() + rhs_prime * _rhs.hashCode();
+    return _connective.customHashCode() + lhs_prime * _lhs.hashCode() + rhs_prime * _rhs.hashCode();
   }
 
 
