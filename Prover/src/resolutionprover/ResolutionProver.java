@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import tptp.Formula;
 import tptp.Kind;
@@ -333,11 +331,11 @@ public class ResolutionProver {
 	 * @param formulae
 	 * @param replacedForm
 	 * @param newForm
-	 * @return A new {@link SortedSet} containing all {@link Formula}e from the
+	 * @return A new {@link Set} containing all {@link Formula}e from the
 	 * provided set except replacedForm
 	 */
-	private SortedSet<Formula> replaceElement(Set<Formula> formulae, Formula replacedForm, Formula newForm) {
-		SortedSet<Formula> newFormulae = new TreeSet<Formula>(formulae);
+	private Set<Formula> replaceElement(Set<Formula> formulae, Formula replacedForm, Formula newForm) {
+		Set<Formula> newFormulae = new HashSet<Formula>(formulae);
 		newFormulae.remove(replacedForm);
 		//positives and negatives in one disjunction => true, therefore ignore whole disjunction
 		Formula negation = negate(newForm);
@@ -355,11 +353,11 @@ public class ResolutionProver {
 	 * @param disjunction
 	 * @param replacedForm
 	 * @param newForm
-	 * @return A new {@link SortedSet} containing all {@link Formula}e from the
+	 * @return A new {@link Set} containing all {@link Formula}e from the
 	 * provided set except replacedForm
 	 */
 	private Disjunction replaceElement(Disjunction disjunction, Formula replacedForm, Formula newForm) {
-		SortedSet<Formula> formulae = replaceElement(disjunction.formulae, replacedForm, newForm);
+		Set<Formula> formulae = replaceElement(disjunction.formulae, replacedForm, newForm);
 		if (formulae == null)
 			return null;
 		return new Disjunction(formulae);
@@ -376,7 +374,7 @@ public class ResolutionProver {
 	 * negations of it.
 	 */
 	private Disjunction applyResolution(Disjunction disjunction1, Disjunction disjunction2, Formula form) {
-		SortedSet<Formula> newFormulae = new TreeSet<Formula>();
+	  Set<Formula> newFormulae = new HashSet<Formula>();
 		for (Formula f : disjunction1.formulae) {
 			if (f.equals(form)) 
 				continue;
