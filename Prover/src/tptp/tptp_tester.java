@@ -8,7 +8,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
-import resolution_prover.ResolutionProver;
+import resolutionprover.ResolutionProver;
 
 /**
  * This is a program to test TPTP file for being syntactically and semantically
@@ -141,8 +141,8 @@ public class tptp_tester {
         formulae.add(formula);
       }
       ResolutionProver prover = new ResolutionProver(formulae);
-      prover.prove();
-      prover.printTrace();
+      boolean proven = prover.prove();
+      System.out.println("proven: " + proven);
     }
     // general ANTLR exception. It is enough to catch all ANTRL exceptions
     catch (antlr.ANTLRException e) {

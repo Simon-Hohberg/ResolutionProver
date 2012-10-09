@@ -1,5 +1,6 @@
-package resolution_prover;
+package resolutionprover;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -33,8 +34,8 @@ public class Disjunction implements Comparable<Disjunction> {
 		}
 	}
 	
-	public Disjunction(SortedSet<Formula> formulae) {
-		this.formulae = formulae;
+	public Disjunction(Collection<Formula> formulae) {
+		this.formulae = new TreeSet<Formula>(formulae);
 	}
 	
 	public Disjunction(int origin, Formula... formulae) {
@@ -43,8 +44,8 @@ public class Disjunction implements Comparable<Disjunction> {
 		this.origin.add(origin);
 	}
 	
-	public Disjunction(int origin, SortedSet<Formula> formulae) {
-		this.formulae = formulae;
+	public Disjunction(int origin, Collection<Formula> formulae) {
+		this.formulae = new TreeSet<Formula>(formulae);
 		this.origin = new ArrayList<Integer>();
 		this.origin.add(origin);
 	}
@@ -56,8 +57,8 @@ public class Disjunction implements Comparable<Disjunction> {
 		this.index = index;
 	}
 	
-	public Disjunction(int index, int origin, SortedSet<Formula> formulae) {
-		this.formulae = formulae;
+	public Disjunction(int index, int origin, Collection<Formula> formulae) {
+		this.formulae = new TreeSet<Formula>(formulae);
 		this.origin = new ArrayList<Integer>();
 		this.origin.add(origin);;
 		this.index = index;
@@ -84,7 +85,7 @@ public class Disjunction implements Comparable<Disjunction> {
 	
 	@Override
 	public int compareTo(Disjunction o) {
-	  return new Integer(index).compareTo(o.index);
+	  return new Integer(formulae.size()).compareTo(o.formulae.size());
 	}
 	
 	public boolean isEmpty() {

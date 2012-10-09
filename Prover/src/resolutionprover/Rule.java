@@ -1,4 +1,4 @@
-package resolution_prover;
+package resolutionprover;
 
 public enum Rule {
 
