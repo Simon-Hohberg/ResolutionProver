@@ -263,7 +263,7 @@ public class ResolutionProver {
 		if (resolutionFormula == null)
 			return;
 		//get all disjunctions with which resolution can be done
-		Set<Disjunction> resolutionDisjunctions = resolutionMap.get(new Negation(resolutionFormula));
+		Set<Disjunction> resolutionDisjunctions = resolutionMap.get(negate(resolutionFormula));
 		if (resolutionDisjunctions == null)
 		  return;
 		for (Disjunction resolutionDisjunction : resolutionDisjunctions) {
@@ -340,7 +340,7 @@ public class ResolutionProver {
 		SortedSet<Formula> newFormulae = new TreeSet<Formula>(formulae);
 		newFormulae.remove(replacedForm);
 		//positives and negatives in one disjunction => true, therefore ignore whole disjunction
-		Formula negation = newForm.getKind() == Kind.Negation ? ((Negation)newForm).getArgument() : new Negation(newForm);
+		Formula negation = negate(newForm);
 		if (newFormulae.contains(negation)) {
 			return null;
 		} else {
