@@ -141,8 +141,8 @@ public class tptp_tester {
         formulae.add(formula);
       }
       ResolutionProver prover = new ResolutionProver(formulae);
-      boolean proven = prover.prove();
-      System.out.println("proven: " + proven);
+      prover.prove();
+      //prover.printTrace();
     }
     // general ANTLR exception. It is enough to catch all ANTRL exceptions
     catch (antlr.ANTLRException e) {
