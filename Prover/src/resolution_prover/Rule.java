@@ -2,13 +2,13 @@ package resolution_prover;
 
 public enum Rule {
 
-	NEGNEG("double negation rule"),
-	ALPHA1("alpha rule (alpha1)"),
-	ALPHA2("alpha rule (alpha2)"),
-	BETA("beta rule"),
+	NEGNEG("negneg"),
+	ALPHA1("alpha1"),
+	ALPHA2("alpha2"),
+	BETA("beta"),
 	NOT_FALSE("not false rule"),
 	NOT_TRUE("not true rule"),
-	RESOULUTION("resolution rule");
+	RESOLUTION("resolution");
 	
 	public final String humanReadable;
 

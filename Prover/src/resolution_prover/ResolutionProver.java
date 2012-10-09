@@ -1,6 +1,6 @@
 package resolution_prover;
-import java.text.Normalizer.Form;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,10 +9,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
-import tptp.Atomic;
 import tptp.Formula;
 import tptp.Kind;
 import tptp.Negation;
@@ -23,19 +21,22 @@ public class ResolutionProver {
 
 	private SortedSet<Disjunction> trace;
 	private Queue<Disjunction> workingQueue;
+	private Deque<Disjunction> resolved = new LinkedList<Disjunction>();
 	private Map<Formula, Set<Disjunction>> resolutionMap;
+	private Disjunction start;
 	
 	private boolean isTautology;
 
 	public ResolutionProver(List<Formula> formulae) {
 	  Formula[] nformulae = new Formula[formulae.size()];
 	  for (int i = 0; i < formulae.size(); i++) {
-	    nformulae[i] = new Negation(formulae.get(i));
+	    nformulae[i] = neg(formulae.get(i));
 	  }
 		trace = new TreeSet<Disjunction>();
 		workingQueue = new LinkedList<Disjunction>();
 		resolutionMap = new HashMap<Formula, Set<Disjunction>>(); // TODO optimize hashCode() for Formula etc., make it semantic
 		Disjunction disjunction = new Disjunction(1, -1, nformulae);
+		start = disjunction;
 		//initialize
 		workingQueue.add(disjunction);
 		isTautology = false;
@@ -43,12 +44,37 @@ public class ResolutionProver {
 	
 	public boolean prove() {
 		
+	  // normalize to KNF
+	  System.out.print("Normalize...");
 		while (!workingQueue.isEmpty() && !isTautology) {
 			Disjunction disjunction = workingQueue.poll();
 			disjunction.index = trace.size() + 1;
 			trace.add(disjunction);
 			reduce(disjunction);
 		}
+		
+		// resolve
+		System.out.println(String.format(" %d steps", trace.size()));
+		System.out.print("Getting KNF...");
+		List<Disjunction> final_conjunction = start.derivations();
+		System.out.println(String.format(" %d terms", final_conjunction.size()));
+		//System.out.println(final_conjunction);
+		printTrace();
+		System.out.println("Resolution...");
+		workingQueue.addAll(final_conjunction);
+		
+		int i = 0;
+		while(!isTautology && (!workingQueue.isEmpty() || !resolved.isEmpty())) {
+		  Disjunction disjunction = resolved.isEmpty() ? workingQueue.poll() : resolved.removeFirst();
+		  if (disjunction.has_derivations())
+		    continue;
+		  updateResolutionMap(disjunction);
+		  doResolution(disjunction);
+		  if (++i % 100 == 0)
+		    System.out.println(workingQueue.size() + resolved.size());
+		}
+		//System.out.println(resolutionMap);
+		printTrace();
 		
 		return isTautology;
 	}
@@ -69,6 +95,8 @@ public class ResolutionProver {
 				builder.append(" ");
 			}
 			builder.append(disjunction.toString(commentIndent));
+			if (!disjunction.has_derivations())
+			  builder.append('F');
 			System.out.println(builder.toString());
 			i++;
 		}
@@ -88,10 +116,6 @@ public class ResolutionProver {
 		
 		if (isTautology = disjunction.isEmpty())
 			return;
-		
-		updateResolutionMap(disjunction);
-		
-		doResolution(disjunction);
 		
 		//expand disjunction and do recursion
 		Disjunction newDisjunction = doExpansion(disjunction, currentIndex);
@@ -176,6 +200,7 @@ public class ResolutionProver {
 		newDisjunction.origin = new ArrayList<Integer>();
 		newDisjunction.origin.add(currentIndex);
 		newDisjunction.index = currentIndex + 1;
+		disjunction.derivation(newDisjunction);
 		addToTrace(newDisjunction);
 		
 		return newDisjunction;
@@ -191,13 +216,14 @@ public class ResolutionProver {
 		alpha2Disjunction.origin = new ArrayList<Integer>();
 		alpha2Disjunction.origin.add(currentIndex);
 		alpha2Disjunction.rule = Rule.ALPHA2;
-		addToWorkingQueue(alpha2Disjunction);	//TODO not added to resolution map, yet
+		workingQueue.add(alpha2Disjunction);	//TODO not added to resolution map, yet
 		
 		newDisjunction = replaceElement(disjunction, form, alpha1);
 		newDisjunction.rule = Rule.ALPHA1;
 		newDisjunction.origin = new ArrayList<Integer>();
 		newDisjunction.origin.add(currentIndex);
 		newDisjunction.index = currentIndex + 1;
+		disjunction.derivation(newDisjunction, alpha2Disjunction);
 		addToTrace(newDisjunction);
 		
 		return newDisjunction;
@@ -212,6 +238,7 @@ public class ResolutionProver {
 		newDisjunction.origin = new ArrayList<Integer>();
 		newDisjunction.origin.add(currentIndex);
 		newDisjunction.index = currentIndex + 1;
+		disjunction.derivation(newDisjunction);
 		addToTrace(newDisjunction);
 		
 		return newDisjunction;
@@ -223,54 +250,80 @@ public class ResolutionProver {
 	 * and adds the newly created {@link Disjunction}s to the working queue.
 	 * @param disjunction
 	 */
-	private void doResolution(Disjunction disjunction) {
-		Formula resolutionFormula = getFormulaForResolution(disjunction);
-		if (resolutionFormula == null)
-			return;
-		//get all disjunctions with which resolution can be done
-		Set<Disjunction> resolutionDisjunctions = resolutionMap.get(new Negation(resolutionFormula));
-		if (resolutionDisjunctions == null)
-		  return;
-		for (Disjunction resolutionDisjunction : resolutionDisjunctions) {
-			if (resolutionDisjunction.equals(disjunction))
-				continue;
-			Disjunction newDisjunction = applyResolution(disjunction, resolutionDisjunction, resolutionFormula);
-			newDisjunction.origin = new ArrayList<Integer>();
-			newDisjunction.origin.add(disjunction.index);
-			newDisjunction.origin.add(resolutionDisjunction.index);
-			newDisjunction.rule = Rule.RESOULUTION;
-			addToWorkingQueue(newDisjunction);
-		}
+	private boolean doResolution(Disjunction disjunction) {
+	  boolean resoluted = false;
+	  
+	  Disjunction resoluter = getDisjunctionForResolution(disjunction);
+	  if (resoluter != null) {
+	    resoluted = true;
+      Disjunction newDisjunction = applyResolution(disjunction, resoluter);
+      newDisjunction.origin = new ArrayList<Integer>();
+      newDisjunction.origin.add(disjunction.index);
+      newDisjunction.origin.add(resoluter.index);
+      newDisjunction.rule = Rule.RESOLUTION;
+      newDisjunction.index = trace.size() + 1;
+      disjunction.derivation(newDisjunction);
+      resoluter.derivation(newDisjunction);
+      addToResolutionQueue(newDisjunction);
+      addToTrace(newDisjunction);
+	  }
+		return resoluted;
+	}
+	
+	private Disjunction applyResolution(Disjunction disjunction1,
+      Disjunction disjunction2) {
+	  SortedSet<Formula> d1 = new TreeSet<Formula>(disjunction1.formulae);
+	  SortedSet<Formula> d2 = new TreeSet<Formula>(disjunction2.formulae);
+    for (Formula form : disjunction1.formulae) {
+      Formula negForm = neg(form);
+      if (!disjunction1.formulae.contains(negForm))
+        d2.remove(negForm);
+    }
+    for (Formula form : disjunction2.formulae) {
+      Formula negForm = neg(form);
+      if (!disjunction2.formulae.contains(negForm))
+        d1.remove(negForm);
+    }
+    d1.addAll(d2);
+    return new Disjunction(d1);
+  }
+
+  private Disjunction getDisjunctionForResolution(Disjunction disjunction) {
+	  Disjunction match = null;
+	  
+	  for (Formula f : disjunction.formulae) {
+	    Set<Disjunction> derived = new TreeSet<Disjunction>();
+	    Set<Disjunction> f_disjunctions = resolutionMap.get(neg(f));
+	    if (f_disjunctions == null)
+	      continue;
+	    for (Disjunction matching : f_disjunctions) {
+	      if (matching.has_derivations()) {
+	        derived.add(matching);
+	        continue;
+	      }
+	      if (disjunction != matching) {
+	        match = matching;
+	        break;
+	      }
+	    }
+	    if (!derived.isEmpty())
+	      f_disjunctions.removeAll(derived);
+	  }
+	  
+	  return match;
 	}
 
-	/**
-	 * Searches for a {@link Formula} that is in the provided {@link Disjunction}
-	 * and the negation of the {@link Formula} is in any other {@link Disjunction}.
-	 * @param disjunction
-	 * @return {@link Formula} that is contained in the given {@link Disjunction}
-	 * and the negation in any other {@link Disjunction} or <code>null</code> if 
-	 * there is none.
-	 */
-	private Formula getFormulaForResolution(Disjunction disjunction) {
-		for (Formula formula : disjunction.formulae) {
-			Formula negFormula;
-			if (formula.getKind() == Kind.Negation) {
-				negFormula = ((Negation)formula).getArgument();
-			} else {
-				negFormula = new Negation(formula);
-			}
-			Set<Disjunction> disjunctions = resolutionMap.get(negFormula);
-			if (disjunctions != null)
-				if (!disjunctions.isEmpty())
-					if (disjunctions.size() > 1)
-						return negFormula.getKind() == Kind.Negation ? formula : negFormula;	//return positive formula
-					else if (!disjunctions.iterator().next().equals(disjunction))
-						return negFormula.getKind() == Kind.Negation ? formula : negFormula;	//return positive formula
-		}
-		return null;
-	}
+	private Formula neg(Formula formula) {
+	  Formula negFormula;
+    if (formula.getKind() == Kind.Negation) {
+      negFormula = ((Negation)formula).getArgument();
+    } else {
+      negFormula = new Negation(formula);
+    }
+	  return negFormula;
+  }
 
-	/**
+  /**
 	 * Updates the resolutionMap by adding the given {@link Disjunction}. 
 	 * Associates all {@link Formula}e in the disjunction with it.
 	 * @param disjunction
@@ -298,13 +351,7 @@ public class ResolutionProver {
 	private SortedSet<Formula> replaceElement(Set<Formula> formulae, Formula replacedForm, Formula newForm) {
 		SortedSet<Formula> newFormulae = new TreeSet<Formula>(formulae);
 		newFormulae.remove(replacedForm);
-		//prevent positives and negatives in one disjunctions
-		Formula negation = newForm.getKind() == Kind.Negation ? ((Negation)newForm).getArgument() : new Negation(newForm);
-		if (newFormulae.contains(negation)) {
-			newFormulae.remove(negation);
-		} else {
-			newFormulae.add(newForm);
-		}
+	  newFormulae.add(newForm);
 		return newFormulae;
 	}
 	
@@ -321,46 +368,8 @@ public class ResolutionProver {
 		return new Disjunction(replaceElement(disjunction.formulae, replacedForm, newForm));
 	}
 	
-	/**
-	 * Applies the resolution rule on both provided {@link Disjunction}s removing
-	 * all positive and negated occurrences of the given {@link Form}.
-	 * @param disjunction1
-	 * @param disjunction2
-	 * @param form
-	 * @return A new {@link Disjunction} containing all {@link Formula}e of the
-	 * two given {@link Disjunction}s except the provided {@link Formula} and
-	 * negations of it.
-	 */
-	private Disjunction applyResolution(Disjunction disjunction1, Disjunction disjunction2, Formula form) {
-		SortedSet<Formula> newFormulae = new TreeSet<Formula>();
-		for (Formula f : disjunction1.formulae) {
-			if (f.equals(form)) 
-				continue;
-			else if (f.getKind() == Kind.Negation)
-				if (((Negation)f).getArgument().equals(form))
-					continue;
-			newFormulae.add(f);
-		}
-		for (Formula f : disjunction2.formulae) {
-			if (f.equals(form)) 
-				continue;
-			else if (f.getKind() == Kind.Negation)
-				if (((Negation)f).getArgument().equals(form))
-					continue;
-			//prevent positives and negatives in one disjunction
-			Formula negation = f.getKind() == Kind.Negation ? ((Negation)f).getArgument() : new Negation(f);
-			if (newFormulae.contains(negation)) {
-				newFormulae.remove(negation);
-			} else {
-				newFormulae.add(f);
-			}
-		}
-		return new Disjunction(newFormulae);
-	}
-	
-	private void addToWorkingQueue(Disjunction disjunction) {
+	private void addToResolutionQueue(Disjunction disjunction) {
 		if (disjunction.isEmpty()) {
-			workingQueue.clear();
 			isTautology = true;
 			disjunction.index = trace.size()+1;
 			trace.add(disjunction);
@@ -368,7 +377,7 @@ public class ResolutionProver {
 		}
 		if (trace.contains(disjunction))
 			return;
-		workingQueue.add(disjunction);
+		resolved.addFirst(disjunction);
 	}
 	
 	private void addToTrace(Disjunction disjunction) {

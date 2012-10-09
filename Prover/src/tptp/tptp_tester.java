@@ -142,7 +142,7 @@ public class tptp_tester {
       }
       ResolutionProver prover = new ResolutionProver(formulae);
       prover.prove();
-      prover.printTrace();
+      //prover.printTrace();
     }
     // general ANTLR exception. It is enough to catch all ANTRL exceptions
     catch (antlr.ANTLRException e) {

@@ -37,6 +37,20 @@ public class Binary extends Formula {
   public String toString(String indent) {
     return indent + "(" + _lhs + _connective + _rhs + ")";
   }
+  
+  @Override
+  public int hashCode() {
+    final int lhs_prime = 37;
+    int rhs_prime = lhs_prime;
+    
+    switch(_connective) {
+      case Implication:
+      case ReverseImplication:
+        rhs_prime = 41;
+    }
+    
+    return _connective.hashCode() + lhs_prime * _lhs.hashCode() + rhs_prime * _rhs.hashCode();
+  }
 
 
 
