@@ -1,16 +1,17 @@
 package resolutionprover;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Set;
 
+import tptp.BooleanAtomic;
 import tptp.Formula;
 
 
 public class Disjunction implements Comparable<Disjunction> {
 
-	public SortedSet<Formula> formulae;
+	public Set<Formula> formulae;
 	
 	/**
 	 * Index of this disjunction
@@ -28,14 +29,14 @@ public class Disjunction implements Comparable<Disjunction> {
 	public Rule rule;
 	
 	public Disjunction(Formula... formulae) {
-		this.formulae = new TreeSet<Formula>();
+		this.formulae = new HashSet<Formula>();
 		for (Formula formula : formulae) {
 			this.formulae.add(formula);
 		}
 	}
 	
 	public Disjunction(Collection<Formula> formulae) {
-		this.formulae = new TreeSet<Formula>(formulae);
+		this.formulae = new HashSet<Formula>(formulae);
 	}
 	
 	public Disjunction(int origin, Formula... formulae) {
@@ -45,7 +46,7 @@ public class Disjunction implements Comparable<Disjunction> {
 	}
 	
 	public Disjunction(int origin, Collection<Formula> formulae) {
-		this.formulae = new TreeSet<Formula>(formulae);
+		this.formulae = new HashSet<Formula>(formulae);
 		this.origin = new ArrayList<Integer>();
 		this.origin.add(origin);
 	}
@@ -58,7 +59,7 @@ public class Disjunction implements Comparable<Disjunction> {
 	}
 	
 	public Disjunction(int index, int origin, Collection<Formula> formulae) {
-		this.formulae = new TreeSet<Formula>(formulae);
+		this.formulae = new HashSet<Formula>(formulae);
 		this.origin = new ArrayList<Integer>();
 		this.origin.add(origin);;
 		this.index = index;
@@ -89,18 +90,43 @@ public class Disjunction implements Comparable<Disjunction> {
 	}
 	
 	public boolean isEmpty() {
-		return formulae.isEmpty();
+		if (formulae.isEmpty())
+			return true;
+		if (formulae.size() == 1)
+			if (formulae.iterator().next().equals(BooleanAtomic.FALSE))
+				return true;
+		return false;
 	}
 	
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((formulae == null) ? 0 : formulae.hashCode());
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Disjunction))
+		if (this == obj)
+			return true;
+		if (obj == null)
 			return false;
-		Disjunction comp = (Disjunction) obj;
-		for (Formula f : formulae) {
-			if (!comp.formulae.contains(f))
+		if (getClass() != obj.getClass())
+			return false;
+		Disjunction other = (Disjunction) obj;
+		if (formulae == null) {
+			if (other.formulae != null)
 				return false;
-		}
+		} else if (!formulae.equals(other.formulae))
+			return false;
 		return true;
+	}
+
+	public boolean isTautology() {
+		if (formulae.size() == 1)
+			return formulae.iterator().next().equals(BooleanAtomic.TRUE);
+		return false;
 	}
 }

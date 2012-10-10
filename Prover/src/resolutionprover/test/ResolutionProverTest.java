@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +14,10 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import resolutionprover.Disjunction;
+import resolutionprover.Expander;
 import resolutionprover.ResolutionProver;
+import resolutionprover.Util;
 import tptp.AnnotatedFormula;
 import tptp.Formula;
 import tptp.Negation;
@@ -74,6 +78,17 @@ public class ResolutionProverTest {
   @Test
   public void proveMiamiCS() {
     assertTrue(prove(miami_cs));
+  }
+  
+  @Test
+  public void equalsTest() {
+	  Expander e = new Expander();
+	  Disjunction disjunction = new Disjunction(Util.negateAll(miami_cs));
+	  disjunction.index = 1;
+	  Collection<Disjunction> atoms = e.expand(disjunction);
+	  for (Disjunction d : e.trace) {
+		  assertTrue(d.toString(), e.trace.contains(d));
+	  }
   }
   
   private boolean prove(List<Formula> formulae) {

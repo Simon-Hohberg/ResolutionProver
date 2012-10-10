@@ -5,5 +5,7 @@ public enum Kind
   Atomic,
   Negation,
   Binary,
-  Quantified
+  Quantified,
+  Constant,
+  Boolean
 }

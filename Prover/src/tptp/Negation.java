@@ -21,18 +21,8 @@ public class Negation extends Formula {
       return false;
     if (this == obj)
       return true;
-    boolean returnValue = _kind == ((Formula) obj)._kind
+    return _kind == ((Formula) obj)._kind
         && _argument.equals(((Negation) obj)._argument);
-
-    if (!returnValue && obj.toString().equals(this.toString()))
-      throw new IllegalStateException(
-          "Negations not equal although they should be");
-
-    if (returnValue && obj.hashCode() != this.hashCode()) {
-      throw new IllegalStateException("Negations equal, but hashes differ");
-    }
-
-    return returnValue;
   }
 
   public String toString() {

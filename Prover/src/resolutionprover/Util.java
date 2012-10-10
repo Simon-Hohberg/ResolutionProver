@@ -1,6 +1,14 @@
 package resolutionprover;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import tptp.BooleanAtomic;
+import tptp.Formula;
+import tptp.Kind;
+import tptp.Negation;
 
 
 public class Util {
@@ -29,5 +37,73 @@ public class Util {
 				maxLength = length;
 		}
 		return maxLength + 2;
+	}
+
+	/**
+	 * Negates the given {@link Formula} by either creating a new 
+	 * {@link Negation} if the {@link Formula} isn't a {@link Negation} itself
+	 * or returning the argument of the {@link Negation}. Therefore no double
+	 * {@link Negation} can be created using this method.
+	 * @param formula
+	 * @return The semantic negation of the provided {@link Formula}.
+	 */
+	public static Formula negate(Formula formula) {
+		Formula negFormula;
+		if (formula.getKind() == Kind.Negation) {
+			negFormula = ((Negation)formula).getArgument();
+		} else {
+			negFormula = new Negation(formula);
+		}
+		return negFormula;
+	}
+	
+	public static Formula[] negateAll(Formula... formulae) {
+		Formula[] negated = new Formula[formulae.length];
+		for (int i = 0; i < formulae.length; i++) {
+			negated[i] = negate(formulae[i]);
+		}
+		return negated;
+	}
+	
+	public static Formula[] negateAll(List<Formula> formulae) {
+		return negateAll(formulae.toArray(new Formula[formulae.size()]));
+	}
+
+	/**
+	 * Replaces one {@link Formula} with another one and removes negations and
+	 * corresponding positives.
+	 * @param formulae
+	 * @param replacedForm
+	 * @param newForm
+	 * @return A new {@link Set} containing all {@link Formula}e from the
+	 * provided set except replacedForm
+	 */
+	public static Set<Formula> replaceElement(Set<Formula> formulae, Formula replacedForm, Formula newForm) {
+		Set<Formula> newFormulae = new HashSet<Formula>(formulae);
+		newFormulae.remove(replacedForm);
+		//positives and negatives in one disjunction => true, therefore ignore whole disjunction
+		Formula negation = negate(newForm);
+		if (newFormulae.contains(negation)) {
+			newFormulae.clear();
+			newFormulae.add(BooleanAtomic.TRUE);
+			return newFormulae;
+		} else {
+			newFormulae.add(newForm);
+		}
+		return newFormulae;
+	}
+
+	/**
+	 * Replaces one {@link Formula} with another one and removes negations and
+	 * corresponding positives.
+	 * @param disjunction
+	 * @param replacedForm
+	 * @param newForm
+	 * @return A new {@link Set} containing all {@link Formula}e from the
+	 * provided set except replacedForm
+	 */
+	public static Disjunction replaceElement(Disjunction disjunction, Formula replacedForm, Formula newForm) {
+		Set<Formula> formulae = replaceElement(disjunction.formulae, replacedForm, newForm);
+		return new Disjunction(formulae);
 	}
 }
