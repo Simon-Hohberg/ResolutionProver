@@ -75,7 +75,7 @@ public class Util {
 		return negateAll(formulae.toArray(new Formula[formulae.size()]));
 	}
 	
-	public static AnnotatedFormula[] negateAll(List<AnnotatedFormula> annotatedFormulas) {
+	public static AnnotatedFormula[] negateAllAnnotated(List<AnnotatedFormula> annotatedFormulas) {
 	  AnnotatedFormula[] negatedAnnotatedFormulas = new AnnotatedFormula[annotatedFormulas.size()];
 	  for (int i = 0; i < negatedAnnotatedFormulas.length; i++)
 	    negatedAnnotatedFormulas[i] = negate(annotatedFormulas.get(i));

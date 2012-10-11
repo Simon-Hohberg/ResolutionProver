@@ -1,10 +1,10 @@
 package resolutionprover;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -18,12 +18,13 @@ import tptp.tptp_tester;
 public class Expander {
 
 	private Queue<Disjunction> workingQueue;
-	private int index;
-	public Set<Disjunction> trace;
+	public Set<Disjunction> seenDisjunctions;
+	public List<Disjunction> trace;
 	
 	public Expander() {
 		workingQueue = new LinkedList<Disjunction>();
-		trace = new HashSet<Disjunction>();
+		seenDisjunctions = new HashSet<Disjunction>();
+		trace = new LinkedList<Disjunction>();
 	}
 	
 	/**
@@ -36,9 +37,13 @@ public class Expander {
 	 */
 	public Collection<Disjunction> expand(Disjunction disjunction) {
 		
+		seenDisjunctions.clear();
 		trace.clear();
+		
+		seenDisjunctions.add(disjunction);
+		trace.add(disjunction);
+		
 		Set<Disjunction> atomicDisjunctions = new HashSet<Disjunction>();
-		index = disjunction.index;
 		workingQueue.add(disjunction);
 		
 		while (!workingQueue.isEmpty()) {
@@ -46,13 +51,13 @@ public class Expander {
 			Disjunction[] expandedDisjunctions = doExpansion(currentDisjunction);
 			if (expandedDisjunctions != null) {
 				for (Disjunction d : expandedDisjunctions) {
-				  trace.add(d);
+					seenDisjunctions.add(d);
+					trace.add(d);
 					if (!d.isTautology()) {
 						workingQueue.add(d);
 					}
 				}
 			} else {
-			  trace.add(currentDisjunction);
 				atomicDisjunctions.add(currentDisjunction);
 			}
 		}
@@ -145,9 +150,7 @@ public class Expander {
 			return newDisjunction;
 		newDisjunction.formulae.add(beta2);
 		newDisjunction.rule = Rule.BETA;
-		newDisjunction.origin = new ArrayList<Integer>();
-		newDisjunction.origin.add(disjunction.index);
-		newDisjunction.index = ++index;
+		newDisjunction.origin.add(disjunction);
 		
 		return newDisjunction;
 	}
@@ -167,16 +170,12 @@ public class Expander {
 		//alpha1
 		Disjunction alpha1Disjunction = Util.replaceElement(disjunction, form, alpha1);
 		alpha1Disjunction.rule = Rule.ALPHA1;
-		alpha1Disjunction.origin = new ArrayList<Integer>();
-		alpha1Disjunction.origin.add(disjunction.index);
-		alpha1Disjunction.index = ++index;
+		alpha1Disjunction.origin.add(disjunction);
 		
 		//alpha2
 		Disjunction alpha2Disjunction = Util.replaceElement(disjunction, form, alpha2);
-		alpha2Disjunction.origin = new ArrayList<Integer>();
-		alpha2Disjunction.origin.add(disjunction.index);
+		alpha2Disjunction.origin.add(disjunction);
 		alpha2Disjunction.rule = Rule.ALPHA2;
-		alpha2Disjunction.index = ++index;
 		
 		return new Disjunction[] { alpha1Disjunction, alpha2Disjunction };
 	}
@@ -188,14 +187,12 @@ public class Expander {
 		if (newDisjunction == null)
 			return null;
 		newDisjunction.rule = Rule.NEGNEG;
-		newDisjunction.origin = new ArrayList<Integer>();
-		newDisjunction.origin.add(disjunction.index);
-		newDisjunction.index = ++index;
+		newDisjunction.origin.add(disjunction);
 		
 		return newDisjunction;
 	}
 	
-	public Set<Disjunction> getTrace() {
+	public List<Disjunction> getTrace() {
 		return trace;
 	}
 }

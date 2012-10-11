@@ -8,6 +8,8 @@ public enum Rule {
 	BETA("beta rule"),
 	NOT_FALSE("not false rule"),
 	NOT_TRUE("not true rule"),
+	AXIOM("axiom"),
+	CONJECTURE("conjecture"),
 	RESOLUTION("resolution rule");
 	
 	public final String humanReadable;

@@ -21,7 +21,7 @@ public class Disjunction implements Comparable<Disjunction> {
 	/**
 	 * Index of the disjunction that is the origin for this disjunction
 	 */
-	public List<Integer> origin = null;
+	public List<Disjunction> origin = null;
 	
 	/**
 	 * Rule that produced this disjunction
@@ -29,6 +29,7 @@ public class Disjunction implements Comparable<Disjunction> {
 	public Rule rule;
 	
 	public Disjunction(Formula... formulae) {
+		this.origin = new ArrayList<Disjunction>();
 		this.formulae = new HashSet<Formula>();
 		for (Formula formula : formulae) {
 			this.formulae.add(formula);
@@ -37,30 +38,29 @@ public class Disjunction implements Comparable<Disjunction> {
 	
 	public Disjunction(Collection<Formula> formulae) {
 		this.formulae = new HashSet<Formula>(formulae);
+		this.origin = new ArrayList<Disjunction>();
 	}
 	
-	public Disjunction(int origin, Formula... formulae) {
+	public Disjunction(Disjunction origin, Formula... formulae) {
 		this(formulae);
-		this.origin = new ArrayList<Integer>();
 		this.origin.add(origin);
 	}
 	
-	public Disjunction(int origin, Collection<Formula> formulae) {
+	public Disjunction(Disjunction origin, Collection<Formula> formulae) {
 		this.formulae = new HashSet<Formula>(formulae);
-		this.origin = new ArrayList<Integer>();
+		this.origin = new ArrayList<Disjunction>();
 		this.origin.add(origin);
 	}
 	
-	public Disjunction(int index, int origin, Formula... formulae) {
+	public Disjunction(int index, Disjunction origin, Formula... formulae) {
 		this(formulae);
-		this.origin = new ArrayList<Integer>();
 		this.origin.add(origin);
 		this.index = index;
 	}
 	
-	public Disjunction(int index, int origin, Collection<Formula> formulae) {
+	public Disjunction(int index, Disjunction origin, Collection<Formula> formulae) {
 		this.formulae = new HashSet<Formula>(formulae);
-		this.origin = new ArrayList<Integer>();
+		this.origin = new ArrayList<Disjunction>();
 		this.origin.add(origin);;
 		this.index = index;
 	}
@@ -69,7 +69,10 @@ public class Disjunction implements Comparable<Disjunction> {
 	public String toString() {
 		if (rule == null || origin == null)
 			return formulae.toString();
-		return String.format("%s  (derivation from %s by applying %s)", formulae.toString(), Util.collectionToString(origin), rule.humanReadable);
+		Set<Integer> originIndizes = new HashSet<Integer>();
+		for (Disjunction d : origin)
+			originIndizes.add(d.index);
+		return String.format("%s  (derivation from %s by applying %s)", formulae.toString(), Util.collectionToString(originIndizes), rule.humanReadable);
 	}
 	
 	public String toString(int commentIndent) {
@@ -80,7 +83,10 @@ public class Disjunction implements Comparable<Disjunction> {
 		StringBuilder builder = new StringBuilder(formulaeString);
 		for (int i = formulaeStringLength;  i < commentIndent; i++)
 			builder.append(" ");
-		builder.append(String.format("(derived from %s by applying %s)", Util.collectionToString(origin), rule.humanReadable));
+		Set<Integer> originIndizes = new HashSet<Integer>();
+		for (Disjunction d : origin)
+			originIndizes.add(d.index);
+		builder.append(String.format("(derived from %s by applying %s)", Util.collectionToString(originIndizes), rule.humanReadable));
 		return builder.toString();
 	}
 	
