@@ -8,7 +8,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
-import resolutionprover.ResolutionProver;
+import resolutionprover.PropositionalProver;
 import resolutionprover.Util;
 
 /**
@@ -141,7 +141,7 @@ public class tptp_tester {
         Formula formula = ((AnnotatedFormula) item).getFormula();
         formulae.add(formula);
       }
-      ResolutionProver prover = new ResolutionProver(formulae);
+      PropositionalProver prover = new PropositionalProver(formulae);
       prover.prove();
       //prover.printTrace();
     }
@@ -1243,7 +1243,7 @@ public class tptp_tester {
   protected static int varCounter = 0;
 
   public static String freshVariableName() {
-    varCounter = ++varCounter;
+    ++varCounter;
     return ("V" + varCounter);
   }
 

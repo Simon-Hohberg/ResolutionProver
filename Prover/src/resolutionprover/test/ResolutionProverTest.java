@@ -13,7 +13,8 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import resolutionprover.ResolutionProver;
+import resolutionprover.FirstOrderProver;
+import resolutionprover.PropositionalProver;
 import resolutionprover.Util;
 import tptp.AnnotatedFormula;
 import tptp.SimpleTptpParserOutput;
@@ -26,7 +27,7 @@ import antlr.TokenStreamException;
 
 public class ResolutionProverTest {
   
-  private static AnnotatedFormula simpleTautology1, simpleTautology2, simpleTautology3, testFormula, atomic, alt;
+  private static AnnotatedFormula simpleFirstOrder, equivalence, simpleTautology1, simpleTautology2, simpleTautology3, testFormula, atomic, alt;
   private static List<AnnotatedFormula> miami_cs;
   
   @BeforeClass
@@ -38,6 +39,8 @@ public class ResolutionProverTest {
     atomic = parseFormula("p");
     miami_cs = parseReader(new FileReader("MiamiDegree.p"));
     alt = parseFormula("(c|~c)|(~c|c)");
+    equivalence = parseFormula("a <=> a");
+    simpleFirstOrder = parseFormula("![X]: ( R(X) => X)");
   }
   
   @Test
@@ -62,6 +65,20 @@ public class ResolutionProverTest {
   }
   
   @Test
+  public void proveEquivalenceTest() {
+	  assertTrue(prove(equivalence));
+  }
+
+  @Test
+  public void simpleFirstOrderTest() {
+	  assertTrue(proveFirstOrder(simpleFirstOrder));
+  }
+  
+  private boolean proveFirstOrder(AnnotatedFormula formula) {
+	return new FirstOrderProver(formula).prove();
+}
+
+@Test
   public void notProve() {
     assertFalse(prove(atomic));
     assertFalse(prove(Util.negate(simpleTautology1)));
@@ -76,7 +93,7 @@ public class ResolutionProverTest {
   }
   
   private boolean prove(List<AnnotatedFormula> formulae) {
-    return new ResolutionProver(formulae.toArray(new AnnotatedFormula[0])).prove();
+    return new PropositionalProver(formulae.toArray(new AnnotatedFormula[0])).prove();
   }
   
   private boolean prove(AnnotatedFormula... formula) {

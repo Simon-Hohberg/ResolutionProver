@@ -48,7 +48,7 @@ public class SimpleTptpParserOutput implements TptpParserOutput {
 			TptpParserOutput.FofFormula lhs,
 			TptpParserOutput.BinaryConnective connective,
 			TptpParserOutput.FofFormula rhs) {
-		Formula key = new Binary(lhs, connective, rhs);
+		Formula key = tptp_tester.replaceEquivalences(new Binary(lhs, connective, rhs));
 		Formula res = _formulaTable.get(key);
 		if (res == null) {
 			_formulaTable.put(key, key);

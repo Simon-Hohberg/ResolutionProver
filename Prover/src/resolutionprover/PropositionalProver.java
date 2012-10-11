@@ -17,23 +17,23 @@ import tptp.Kind;
 import tptp.Negation;
 import tptp.TptpParserOutput.FormulaRole;
 
-public class ResolutionProver {
+public class PropositionalProver {
 
-	private List<Disjunction> disjunctions;
-	private List<Disjunction> trace;
-	private Set<Disjunction> seenDisjunctions;
-	private PriorityQueue<Disjunction> workingQueue;
-	private Map<Formula, Set<Disjunction>> resolutionMap;
+	protected List<Disjunction> disjunctions;
+	protected List<Disjunction> trace;
+	protected Set<Disjunction> seenDisjunctions;
+	protected PriorityQueue<Disjunction> workingQueue;
+	protected Map<Formula, Set<Disjunction>> resolutionMap;
+    
+	protected Collection<Disjunction> atoms;
+    
+	protected boolean isTautology;
 
-	private Collection<Disjunction> atoms;
-
-	private boolean isTautology;
-
-	public ResolutionProver(Collection<Formula> axioms, Formula... conjectures) {
+	public PropositionalProver(Collection<Formula> axioms, Formula... conjectures) {
 		init(axioms, conjectures);
 	}
 
-	public ResolutionProver(AnnotatedFormula... formulae) {
+	public PropositionalProver(AnnotatedFormula... formulae) {
 		List<Formula> axs = new ArrayList<Formula>(formulae.length - 1);
 		List<Formula> conjs = new LinkedList<Formula>();
 		for (AnnotatedFormula af : formulae) {
@@ -95,11 +95,9 @@ public class ResolutionProver {
 		//do resolution
 		while (!workingQueue.isEmpty() && !isTautology) {
 			Disjunction disjunction = workingQueue.poll();
-			System.out.println();
 			addToTrace(disjunction);
 			updateResolutionMap(disjunction);
 			doResolution(disjunction);
-			System.out.println(trace.size());
 		}
 		System.out.println("...done");
 		printTrace(trace);
