@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import tptp.AnnotatedFormula;
 import tptp.BooleanAtomic;
 import tptp.Formula;
 import tptp.Kind;
@@ -57,6 +58,11 @@ public class Util {
 		return negFormula;
 	}
 	
+	public static AnnotatedFormula negate(AnnotatedFormula formula) {
+    formula._formula = negate(formula.getFormula());
+	  return formula;
+  }
+	
 	public static Formula[] negateAll(Formula... formulae) {
 		Formula[] negated = new Formula[formulae.length];
 		for (int i = 0; i < formulae.length; i++) {
@@ -67,6 +73,13 @@ public class Util {
 	
 	public static Formula[] negateAll(List<Formula> formulae) {
 		return negateAll(formulae.toArray(new Formula[formulae.size()]));
+	}
+	
+	public static AnnotatedFormula[] negateAll(List<AnnotatedFormula> annotatedFormulas) {
+	  AnnotatedFormula[] negatedAnnotatedFormulas = new AnnotatedFormula[annotatedFormulas.size()];
+	  for (int i = 0; i < negatedAnnotatedFormulas.length; i++)
+	    negatedAnnotatedFormulas[i] = negate(annotatedFormulas.get(i));
+	  return negatedAnnotatedFormulas;
 	}
 
 	/**

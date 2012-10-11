@@ -42,6 +42,6 @@ package tptp;
     
     private String _name;
     private TptpParserOutput.FormulaRole _role;
-    private Formula _formula;
+    public Formula _formula;
     private Annotations _annotations;
   } // class AnnotatedFormula

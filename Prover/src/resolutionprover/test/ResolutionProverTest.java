@@ -6,21 +6,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import resolutionprover.Disjunction;
-import resolutionprover.Expander;
 import resolutionprover.ResolutionProver;
 import resolutionprover.Util;
 import tptp.AnnotatedFormula;
-import tptp.Formula;
-import tptp.Negation;
 import tptp.SimpleTptpParserOutput;
 import tptp.TopLevelItem;
 import tptp.TptpLexer;
@@ -31,8 +26,8 @@ import antlr.TokenStreamException;
 
 public class ResolutionProverTest {
   
-  private static Formula simpleTautology1, simpleTautology2, simpleTautology3, testFormula, atomic, alt;
-  private static List<Formula> miami_cs;
+  private static AnnotatedFormula simpleTautology1, simpleTautology2, simpleTautology3, testFormula, atomic, alt;
+  private static List<AnnotatedFormula> miami_cs;
   
   @BeforeClass
   public static void setupFormulas() throws RecognitionException, TokenStreamException, FileNotFoundException {
@@ -69,10 +64,10 @@ public class ResolutionProverTest {
   @Test
   public void notProve() {
     assertFalse(prove(atomic));
-    assertFalse(prove(new Negation(simpleTautology1)));
-    assertFalse(prove(new Negation(simpleTautology2)));
-    assertFalse(prove(new Negation(simpleTautology3)));
-    assertFalse(prove(new Negation(alt)));
+    assertFalse(prove(Util.negate(simpleTautology1)));
+    assertFalse(prove(Util.negate(simpleTautology2)));
+    assertFalse(prove(Util.negate(simpleTautology3)));
+    assertFalse(prove(Util.negate(alt)));
   }
   
   @Test
@@ -80,31 +75,20 @@ public class ResolutionProverTest {
     assertTrue(prove(miami_cs));
   }
   
-  @Test
-  public void equalsTest() {
-	  Expander e = new Expander();
-	  Disjunction disjunction = new Disjunction(Util.negateAll(miami_cs));
-	  disjunction.index = 1;
-	  Collection<Disjunction> atoms = e.expand(disjunction);
-	  for (Disjunction d : e.trace) {
-		  assertTrue(d.toString(), e.trace.contains(d));
-	  }
+  private boolean prove(List<AnnotatedFormula> formulae) {
+    return new ResolutionProver(formulae.toArray(new AnnotatedFormula[0])).prove();
   }
   
-  private boolean prove(List<Formula> formulae) {
-    return new ResolutionProver(formulae).prove();
+  private boolean prove(AnnotatedFormula... formula) {
+    return prove(Arrays.asList(formula));
   }
   
-  private boolean prove(Formula formula) {
-    return prove(Collections.singletonList(formula));
-  }
-  
-  private static List<Formula> parseTPTP(String tptp) throws RecognitionException, TokenStreamException {
+  private static List<AnnotatedFormula> parseTPTP(String tptp) throws RecognitionException, TokenStreamException {
     return parseReader(new StringReader(tptp));
   }
   
-  private static List<Formula> parseReader(Reader in) throws RecognitionException, TokenStreamException {
-    LinkedList<Formula> formulae = new LinkedList<Formula>();
+  private static List<AnnotatedFormula> parseReader(Reader in) throws RecognitionException, TokenStreamException {
+    LinkedList<AnnotatedFormula> formulae = new LinkedList<AnnotatedFormula>();
     SimpleTptpParserOutput outputManager = new SimpleTptpParserOutput();
     TptpLexer lexer = new TptpLexer(in);
     TptpParser parser = new TptpParser(lexer);
@@ -112,14 +96,14 @@ public class ResolutionProverTest {
     TopLevelItem item;
     while((item = (TopLevelItem) parser.topLevelItem(outputManager)) != null) {
       if (item instanceof AnnotatedFormula) {
-        formulae.add(((AnnotatedFormula)item).getFormula());
+        formulae.add((AnnotatedFormula)item);
       }
     }
     
     return formulae;
   }
   
-  public static Formula parseFormula(String formula) throws RecognitionException, TokenStreamException {
-    return parseTPTP("fof(axiom1,axiom,(" + formula + ")).").get(0);
+  public static AnnotatedFormula parseFormula(String formula) throws RecognitionException, TokenStreamException {
+    return parseTPTP("fof(conjecture1,conjecture,(" + formula + ")).").get(0);
   }
 }

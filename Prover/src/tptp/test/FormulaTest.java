@@ -22,23 +22,23 @@ public class FormulaTest {
   @BeforeClass
   public static void setupFormulas() throws RecognitionException,
       TokenStreamException, FileNotFoundException {
-    dAtomic = new Formula[] { parseFormula("a"), parseFormula("b"),
-        parseFormula("ab"), parseFormula("~a") };
-    dAnd = new Formula[] { parseFormula("a&b"), parseFormula("b&c"),
-        parseFormula("~a&b") };
-    dOr = new Formula[] { parseFormula("a|b"), parseFormula("b|c"),
-        parseFormula("~a|b") };
-    dNot = new Formula[] { parseFormula("~p"), parseFormula("~~p"),
-        parseFormula("~x") };
-
-    sAtomic1 = new Formula[] { parseFormula("a"), parseFormula("a") };
-    sAtomic2 = new Formula[] { parseFormula("~a"), parseFormula("~a") };
-    sAnd = new Formula[] { parseFormula("a&b"), parseFormula("b&a") };
-    sOr = new Formula[] { parseFormula("a|b"), parseFormula("b|a") };
-    sNot1 = new Formula[] { parseFormula("~p"), parseFormula("~~~p"),
-        parseFormula("~~~~~p") };
-    sNot2 = new Formula[] { parseFormula("~~p"), parseFormula("~~~~p"),
-        parseFormula("~~~~~~p") };
+//    dAtomic = new Formula[] { parseFormula("a"), parseFormula("b"),
+//        parseFormula("ab"), parseFormula("~a") };
+//    dAnd = new Formula[] { parseFormula("a&b"), parseFormula("b&c"),
+//        parseFormula("~a&b") };
+//    dOr = new Formula[] { parseFormula("a|b"), parseFormula("b|c"),
+//        parseFormula("~a|b") };
+//    dNot = new Formula[] { parseFormula("~p"), parseFormula("~~p"),
+//        parseFormula("~x") };
+//
+//    sAtomic1 = new Formula[] { parseFormula("a"), parseFormula("a") };
+//    sAtomic2 = new Formula[] { parseFormula("~a"), parseFormula("~a") };
+//    sAnd = new Formula[] { parseFormula("a&b"), parseFormula("b&a") };
+//    sOr = new Formula[] { parseFormula("a|b"), parseFormula("b|a") };
+//    sNot1 = new Formula[] { parseFormula("~p"), parseFormula("~~~p"),
+//        parseFormula("~~~~~p") };
+//    sNot2 = new Formula[] { parseFormula("~~p"), parseFormula("~~~~p"),
+//        parseFormula("~~~~~~p") };
   }
 
   @Test

@@ -8,7 +8,7 @@ public enum Rule {
 	BETA("beta rule"),
 	NOT_FALSE("not false rule"),
 	NOT_TRUE("not true rule"),
-	RESOULUTION("resolution rule");
+	RESOLUTION("resolution rule");
 	
 	public final String humanReadable;
 

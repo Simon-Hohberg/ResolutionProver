@@ -45,12 +45,13 @@ public class Expander {
 			Disjunction[] expandedDisjunctions = doExpansion(currentDisjunction);
 			if (expandedDisjunctions != null) {
 				for (Disjunction d : expandedDisjunctions) {
+				  trace.add(d);
 					if (!d.isTautology()) {
 						workingQueue.add(d);
-						trace.add(d);
 					}
 				}
 			} else {
+			  trace.add(currentDisjunction);
 				atomicDisjunctions.add(currentDisjunction);
 			}
 		}
