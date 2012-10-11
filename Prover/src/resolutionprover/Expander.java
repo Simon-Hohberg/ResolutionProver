@@ -36,6 +36,7 @@ public class Expander {
 	 */
 	public Collection<Disjunction> expand(Disjunction disjunction) {
 		
+		trace.clear();
 		Set<Disjunction> atomicDisjunctions = new HashSet<Disjunction>();
 		index = disjunction.index;
 		workingQueue.add(disjunction);
@@ -140,6 +141,8 @@ public class Expander {
 		 * disjunction
 		 */
 		newDisjunction = Util.replaceElement(disjunction, form, beta1);
+		if (newDisjunction.isTautology())
+			return newDisjunction;
 		newDisjunction.formulae.add(beta2);
 		newDisjunction.rule = Rule.BETA;
 		newDisjunction.origin = new ArrayList<Integer>();

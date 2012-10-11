@@ -6,13 +6,8 @@ public class BooleanAtomic extends Formula implements TptpParserOutput.AtomicFor
 	public static final BooleanAtomic FALSE = new BooleanAtomic(false);
 	
 	public boolean value;
-	
-	public BooleanAtomic() {
-		_kind = Kind.Boolean;
-		value = false;
-	}
 
-	public BooleanAtomic(boolean value) {
+	private BooleanAtomic(boolean value) {
 		_kind = Kind.Boolean;
 		this.value = value;
 	}
