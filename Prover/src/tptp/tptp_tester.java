@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import resolutionprover.ResolutionProver;
+import resolutionprover.Util;
 
 /**
  * This is a program to test TPTP file for being syntactically and semantically
@@ -933,7 +934,7 @@ public class tptp_tester {
         matrix = ((Quantified) argument).getMatrix();
         switch (quantifier) {
         case Exists:
-          return matrix;
+          return Util.negate(matrix);
         default:
           throw new Error("Unexpected case: " + formula.toString());
         }
@@ -1010,7 +1011,7 @@ public class tptp_tester {
         matrix = ((Quantified) argument).getMatrix();
         switch (quantifier) {
         case ForAll:
-          return matrix;
+          return Util.negate(matrix);
         default:
           throw new Error("Unexpected case: " + formula.toString());
         }
@@ -1058,8 +1059,8 @@ public class tptp_tester {
         boundVariableTerm = (Term) out.createVariableTerm(boundVariable);
         switch (quantifier) {
         case Exists:
-          return substituteFormula(getGammaX(formula), boundVariableTerm, term,
-              out);
+          return Util.negate(substituteFormula(getGammaX(formula), boundVariableTerm, term,
+              out));
         default:
           throw new Error("Unexpected case: " + formula.toString());
         }
@@ -1105,8 +1106,8 @@ public class tptp_tester {
         boundVariableTerm = (Term) out.createVariableTerm(boundVariable);
         switch (quantifier) {
         case ForAll:
-          return substituteFormula(getDeltaX(formula), boundVariableTerm, term,
-              out);
+          return Util.negate(substituteFormula(getDeltaX(formula), boundVariableTerm, term,
+              out));
         default:
           throw new Error("Unexpected case: " + formula.toString());
         }

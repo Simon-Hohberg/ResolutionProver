@@ -8,8 +8,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import tptp.TptpLexer;
 import tptp.TptpParser;
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
+import tptp.BooleanAtomic;
 
 
 public class ResolutionProverTest {
@@ -87,8 +90,21 @@ public class ResolutionProverTest {
 	  disjunction.index = 1;
 	  Collection<Disjunction> atoms = e.expand(disjunction);
 	  for (Disjunction d : e.trace) {
+		  if (!e.trace.contains(d))
+			  System.out.println("");
 		  assertTrue(d.toString(), e.trace.contains(d));
 	  }
+  }
+  
+  @Test
+  public void singletonEqualsTest() {
+	  Set<Disjunction> disjunctions = new HashSet<Disjunction>();
+	  Disjunction trueDisjunction = new Disjunction(BooleanAtomic.TRUE);
+	  Disjunction trueDisjunction2 = new Disjunction(BooleanAtomic.TRUE);
+	  assertTrue(disjunctions.add(trueDisjunction));
+	  assertFalse(disjunctions.add(trueDisjunction2));
+	  for (Disjunction d : disjunctions)
+		  assertTrue(disjunctions.contains(d));
   }
   
   private boolean prove(List<Formula> formulae) {
