@@ -27,7 +27,7 @@ import antlr.TokenStreamException;
 
 public class ResolutionProverTest {
 
-	private static AnnotatedFormula simpleFirstOrder, equivalence,
+	private static AnnotatedFormula testFirstOrder, simpleFirstOrder, equivalence,
 			simpleTautology1, simpleTautology2, simpleTautology3, testFormula,
 			atomic, alt;
 	private static List<AnnotatedFormula> miami_cs;
@@ -43,7 +43,9 @@ public class ResolutionProverTest {
 		miami_cs = parseReader(new FileReader("MiamiDegree.p"));
 		alt = parseFormula("(c|~c)|(~c|c)");
 		equivalence = parseFormula("a <=> a");
-//		simpleFirstOrder = parseFormula("![X]: ( R(X) => X)");
+		simpleFirstOrder = parseFormula("?[X]: ( r(X) => r(X) )");
+		//TODO lhs and rhs of "=>" are null, shitty parser?
+		testFirstOrder = parseFormula("( ?[W]: ![X]: r(X,W,f(X,W)) ) => ( ?[W]: ![X]: ?[Y]: r(X,W,Y) )");
 	}
 
 	@Test
@@ -75,6 +77,11 @@ public class ResolutionProverTest {
 	@Test
 	public void simpleFirstOrderTest() {
 		assertTrue(proveFirstOrder(simpleFirstOrder));
+	}
+	
+	@Test
+	public void testFirstOrderTest() {
+		assertTrue(proveFirstOrder(testFirstOrder));
 	}
 
 	private boolean proveFirstOrder(AnnotatedFormula formula) {

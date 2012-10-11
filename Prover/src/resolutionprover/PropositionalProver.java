@@ -103,7 +103,7 @@ public class PropositionalProver {
 		}
 		System.out.println("...done");
 		printTrace(trace);
-		System.out.println(String.format("\n+++++++++++ Time: %.3fs +++++++++++", (System.currentTimeMillis()-starTime)/1000.0));
+		System.out.println(String.format("\nResult: conjecture is %svalid\n\n+++++++++++ Time: %.3fs +++++++++++", isTautology ? "" : "not ", (System.currentTimeMillis()-starTime)/1000.0));
 		return isTautology;
 	}
 
