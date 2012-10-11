@@ -30,7 +30,7 @@ public class Expander {
 	/**
 	 * Exhaustively applies the resolution expansion rules on the given 
 	 * {@link Disjunction}. The resulting {@link Disjunction}s contain only
-	 * {@link Atomic}s.
+	 * {@link Atomic}s. Atomics will be present in the trace, already.
 	 * @param disjunction
 	 * @return {@link Collection} of {@link Disjunction} containing 
 	 * {@link Atomic}s only
@@ -39,23 +39,23 @@ public class Expander {
 		
 		seenDisjunctions.clear();
 		trace.clear();
-		
+
+		//order is important, since disjunction would not be added to trac/queue when already present in the seen-set
+		addToWorkingQueue(disjunction);
 		seenDisjunctions.add(disjunction);
-		trace.add(disjunction);
 		
 		Set<Disjunction> atomicDisjunctions = new HashSet<Disjunction>();
-		workingQueue.add(disjunction);
 		
 		while (!workingQueue.isEmpty()) {
 			Disjunction currentDisjunction = workingQueue.poll();
 			Disjunction[] expandedDisjunctions = doExpansion(currentDisjunction);
 			if (expandedDisjunctions != null) {
 				for (Disjunction d : expandedDisjunctions) {
-					seenDisjunctions.add(d);
-					trace.add(d);
+					addToTrace(d);
 					if (!d.isTautology()) {
-						workingQueue.add(d);
+						addToWorkingQueue(d);
 					}
+					seenDisjunctions.add(d);
 				}
 			} else {
 				atomicDisjunctions.add(currentDisjunction);
@@ -63,6 +63,16 @@ public class Expander {
 		}
 		
 		return atomicDisjunctions;
+	}
+
+	private void addToWorkingQueue(Disjunction d) {
+		if (!seenDisjunctions.contains(d))
+			workingQueue.add(d);
+	}
+
+	private void addToTrace(Disjunction d) {
+		if (!seenDisjunctions.contains(d))
+			trace.add(d);
 	}
 	
 	/**
@@ -146,11 +156,11 @@ public class Expander {
 		 * disjunction
 		 */
 		newDisjunction = Util.replaceElement(disjunction, form, beta1);
+		newDisjunction.rule = Rule.BETA;
+		newDisjunction.origin.add(disjunction);
 		if (newDisjunction.isTautology())
 			return newDisjunction;
 		newDisjunction.formulae.add(beta2);
-		newDisjunction.rule = Rule.BETA;
-		newDisjunction.origin.add(disjunction);
 		
 		return newDisjunction;
 	}
@@ -184,8 +194,6 @@ public class Expander {
 		Disjunction newDisjunction;
 		Formula newForm = ((Negation)((Negation) form).getArgument()).getArgument();
 		newDisjunction = Util.replaceElement(disjunction, form, newForm);
-		if (newDisjunction == null)
-			return null;
 		newDisjunction.rule = Rule.NEGNEG;
 		newDisjunction.origin.add(disjunction);
 		

@@ -72,7 +72,9 @@ public class Disjunction implements Comparable<Disjunction> {
 		Set<Integer> originIndizes = new HashSet<Integer>();
 		for (Disjunction d : origin)
 			originIndizes.add(d.index);
-		return String.format("%s  (derivation from %s by applying %s)", formulae.toString(), Util.collectionToString(originIndizes), rule.humanReadable);
+		if (rule == Rule.AXIOM || rule == Rule.CONJECTURE)
+			return String.format("%s  (%s)", formulae.toString(), rule.humanReadable);
+		return String.format("%s  (from %s by applying %s)", formulae.toString(), Util.collectionToString(originIndizes), rule.humanReadable);
 	}
 	
 	public String toString(int commentIndent) {
@@ -86,7 +88,10 @@ public class Disjunction implements Comparable<Disjunction> {
 		Set<Integer> originIndizes = new HashSet<Integer>();
 		for (Disjunction d : origin)
 			originIndizes.add(d.index);
-		builder.append(String.format("(derived from %s by applying %s)", Util.collectionToString(originIndizes), rule.humanReadable));
+		if (rule == Rule.AXIOM || rule == Rule.CONJECTURE)
+			builder.append(String.format("(%s)", rule.humanReadable));
+		else
+			builder.append(String.format("(from %s by applying %s)", Util.collectionToString(originIndizes), rule.humanReadable));
 		return builder.toString();
 	}
 	

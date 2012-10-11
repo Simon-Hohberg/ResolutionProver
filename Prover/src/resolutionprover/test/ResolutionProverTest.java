@@ -1,4 +1,5 @@
 package resolutionprover.test;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -24,103 +25,110 @@ import tptp.TptpParser;
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
-
 public class ResolutionProverTest {
-  
-  private static AnnotatedFormula simpleFirstOrder, equivalence, simpleTautology1, simpleTautology2, simpleTautology3, testFormula, atomic, alt;
-  private static List<AnnotatedFormula> miami_cs;
-  
-  @BeforeClass
-  public static void setupFormulas() throws RecognitionException, TokenStreamException, FileNotFoundException {
-    simpleTautology1 = parseFormula("p|~p");
-    simpleTautology2 = parseFormula("(a=>b)|(b=>a)");
-    simpleTautology3 = parseFormula("(a=>(b=>c))=>((a=>b)=>(a=>c))");
-    testFormula = parseFormula("((p & q) | (r => s)) => ((p | (r => s )) & (q | (r => s)))");
-    atomic = parseFormula("p");
-    miami_cs = parseReader(new FileReader("MiamiDegree.p"));
-    alt = parseFormula("(c|~c)|(~c|c)");
-    equivalence = parseFormula("a <=> a");
-    simpleFirstOrder = parseFormula("![X]: ( R(X) => X)");
-  }
-  
-  @Test
-  public void proveSimpleFormula1() {
-    assertTrue(prove(simpleTautology1));
-  }
-  
-  @Test
-  public void proveSimpleFormula2() {
-    assertTrue(prove(simpleTautology2));
-  }
-  
-  @Test
-  public void proveSimpleFormula3() {
-    assertTrue(prove(simpleTautology3));
-  }
-  
-  @Test
-  public void proveTestFormula() {
-    //assertTrue(prove(alt));
-    assertTrue(prove(testFormula));
-  }
-  
-  @Test
-  public void proveEquivalenceTest() {
-	  assertTrue(prove(equivalence));
-  }
 
-  @Test
-  public void simpleFirstOrderTest() {
-	  assertTrue(proveFirstOrder(simpleFirstOrder));
-  }
-  
-  private boolean proveFirstOrder(AnnotatedFormula formula) {
-	return new FirstOrderProver(formula).prove();
-}
+	private static AnnotatedFormula simpleFirstOrder, equivalence,
+			simpleTautology1, simpleTautology2, simpleTautology3, testFormula,
+			atomic, alt;
+	private static List<AnnotatedFormula> miami_cs;
 
-@Test
-  public void notProve() {
-    assertFalse(prove(atomic));
-    assertFalse(prove(Util.negate(simpleTautology1)));
-    assertFalse(prove(Util.negate(simpleTautology2)));
-    assertFalse(prove(Util.negate(simpleTautology3)));
-    assertFalse(prove(Util.negate(alt)));
-  }
-  
-  @Test
-  public void proveMiamiCS() {
-    assertTrue(prove(miami_cs));
-  }
-  
-  private boolean prove(List<AnnotatedFormula> formulae) {
-    return new PropositionalProver(formulae.toArray(new AnnotatedFormula[0])).prove();
-  }
-  
-  private boolean prove(AnnotatedFormula... formula) {
-    return prove(Arrays.asList(formula));
-  }
-  
-  private static List<AnnotatedFormula> parseTPTP(String tptp) throws RecognitionException, TokenStreamException {
-    return parseReader(new StringReader(tptp));
-  }
-  
-  private static List<AnnotatedFormula> parseReader(Reader in) throws RecognitionException, TokenStreamException {
-    LinkedList<AnnotatedFormula> formulae = new LinkedList<AnnotatedFormula>();
-    SimpleTptpParserOutput outputManager = new SimpleTptpParserOutput();
-    TptpLexer lexer = new TptpLexer(in);
-    TptpParser parser = new TptpParser(lexer);
-    
-    TopLevelItem item;
-    while((item = (TopLevelItem) parser.topLevelItem(outputManager)) != null) {
-      if (item instanceof AnnotatedFormula) {
-        formulae.add((AnnotatedFormula)item);
-      }
-    }
-    
-    return formulae;
-  }
-  
-  public static AnnotatedFormula parseFormula(String formula) throws RecognitionException, TokenStreamException {
-    return parseTPTP("fof(conjecture1,conjecture,(" + formula + ")).").get(0);
-  }
+	@BeforeClass
+	public static void setupFormulas() throws RecognitionException,
+			TokenStreamException, FileNotFoundException {
+		simpleTautology1 = parseFormula("p|~p");
+		simpleTautology2 = parseFormula("(a=>b)|(b=>a)");
+		simpleTautology3 = parseFormula("(a=>(b=>c))=>((a=>b)=>(a=>c))");
+		testFormula = parseFormula("((p & q) | (r => s)) => ((p | (r => s )) & (q | (r => s)))");
+		atomic = parseFormula("p");
+		miami_cs = parseReader(new FileReader("MiamiDegree.p"));
+		alt = parseFormula("(c|~c)|(~c|c)");
+		equivalence = parseFormula("a <=> a");
+//		simpleFirstOrder = parseFormula("![X]: ( R(X) => X)");
+	}
+
+	@Test
+	public void proveSimpleFormula1() {
+		assertTrue(prove(simpleTautology1));
+	}
+
+	@Test
+	public void proveSimpleFormula2() {
+		assertTrue(prove(simpleTautology2));
+	}
+
+	@Test
+	public void proveSimpleFormula3() {
+		assertTrue(prove(simpleTautology3));
+	}
+
+	@Test
+	public void proveTestFormula() {
+		// assertTrue(prove(alt));
+		assertTrue(prove(testFormula));
+	}
+
+	@Test
+	public void proveEquivalenceTest() {
+		assertTrue(prove(equivalence));
+	}
+
+	@Test
+	public void simpleFirstOrderTest() {
+		assertTrue(proveFirstOrder(simpleFirstOrder));
+	}
+
+	private boolean proveFirstOrder(AnnotatedFormula formula) {
+		return new FirstOrderProver(formula).prove();
+	}
+
+	@Test
+	public void notProve() {
+		assertFalse(prove(atomic));
+		assertFalse(prove(Util.negate(simpleTautology1)));
+		assertFalse(prove(Util.negate(simpleTautology2)));
+		assertFalse(prove(Util.negate(simpleTautology3)));
+		assertFalse(prove(Util.negate(alt)));
+	}
+
+	@Test
+	public void proveMiamiCS() {
+		assertTrue(prove(miami_cs));
+	}
+
+	private boolean prove(List<AnnotatedFormula> formulae) {
+		return new PropositionalProver(
+				formulae.toArray(new AnnotatedFormula[0])).prove();
+	}
+
+	private boolean prove(AnnotatedFormula... formula) {
+		return prove(Arrays.asList(formula));
+	}
+
+	private static List<AnnotatedFormula> parseTPTP(String tptp)
+			throws RecognitionException, TokenStreamException {
+		return parseReader(new StringReader(tptp));
+	}
+
+	private static List<AnnotatedFormula> parseReader(Reader in)
+			throws RecognitionException, TokenStreamException {
+		LinkedList<AnnotatedFormula> formulae = new LinkedList<AnnotatedFormula>();
+		SimpleTptpParserOutput outputManager = new SimpleTptpParserOutput();
+		TptpLexer lexer = new TptpLexer(in);
+		TptpParser parser = new TptpParser(lexer);
+
+		TopLevelItem item;
+		while ((item = (TopLevelItem) parser.topLevelItem(outputManager)) != null) {
+			if (item instanceof AnnotatedFormula) {
+				formulae.add((AnnotatedFormula) item);
+			}
+		}
+
+		return formulae;
+	}
+
+	public static AnnotatedFormula parseFormula(String formula)
+			throws RecognitionException, TokenStreamException {
+		return parseTPTP("fof(conjecture1,conjecture,(" + formula + ")).").get(
+				0);
+	}
 }

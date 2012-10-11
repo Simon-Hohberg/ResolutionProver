@@ -59,12 +59,14 @@ public class PropositionalProver {
 			Disjunction disjunction = new Disjunction(axiom);
 			disjunction.rule = Rule.AXIOM;
 			disjunctions.add(disjunction);
+			trace.add(disjunction);
 		}
 		//add negated conjectures
 		for (Formula conjecture : conjectures) {
 			Disjunction disjunction = new Disjunction(Util.negate(conjecture));
 			disjunction.rule = Rule.CONJECTURE;
 			disjunctions.add(disjunction);
+			trace.add(disjunction);
 		}
 	}
 
@@ -76,10 +78,11 @@ public class PropositionalProver {
 	 *         <code>false</code>
 	 */
 	public boolean prove() {
+		long starTime = System.currentTimeMillis();
+		System.out.println("\n----------- Propositional Proof -----------");
 		//expand all disjunctions
 		atoms = new LinkedList<Disjunction>();
 		for (Disjunction disjunction : disjunctions) {
-			trace.add(disjunction);
 			seenDisjunctions.add(disjunction);
 			
 			Expander expander = new Expander();
@@ -87,20 +90,20 @@ public class PropositionalProver {
 			trace.addAll(expander.getTrace());
 			seenDisjunctions.addAll(expander.seenDisjunctions);
 		}
-		System.out.println("\nGot " + atoms.size()
-				+ " atoms. Doing resolution...");
+		System.out.println("Got " + atoms.size()
+				+ " disjunctions containing atoms only.\nDoing resolution...");
 
 		workingQueue.addAll(atoms);
 
 		//do resolution
 		while (!workingQueue.isEmpty() && !isTautology) {
 			Disjunction disjunction = workingQueue.poll();
-			addToTrace(disjunction);
 			updateResolutionMap(disjunction);
 			doResolution(disjunction);
 		}
 		System.out.println("...done");
 		printTrace(trace);
+		System.out.println(String.format("\n+++++++++++ Time: %.3fs +++++++++++", (System.currentTimeMillis()-starTime)/1000.0));
 		return isTautology;
 	}
 
@@ -138,7 +141,9 @@ public class PropositionalProver {
 					.negate(resolutionFormula));
 			if (resolutionDisjunctions == null)
 				continue;
+			//do resolution with all resolutions sharing the current formula
 			for (Disjunction d : resolutionDisjunctions) {
+				//if resolution disjunction is the same disjunction, it contains some A and ~A, so it is always true
 				if (d.equals(disjunction)) {
 					disjunction.formulae.clear();
 					disjunction.formulae.add(BooleanAtomic.TRUE);
@@ -150,6 +155,10 @@ public class PropositionalProver {
 				Disjunction resolvent = applyResolution(disjunction, d,
 						resolutionFormula);
 				addToWorkingQueue(resolvent);
+				
+				//check if prove is already finished
+				if (isTautology)
+					return;
 			}
 		}
 	}
@@ -219,8 +228,9 @@ public class PropositionalProver {
 	}
 
 	/**
-	 * Adds the provided {@link Disjunction} to the working queue also checking
-	 * if this {@link Disjunction} is already empty.
+	 * Adds the provided {@link Disjunction} to the working queue and trace also
+	 * checking if this {@link Disjunction} is already a tautology or is already
+	 * empty.
 	 * 
 	 * @param disjunction
 	 */
@@ -231,11 +241,15 @@ public class PropositionalProver {
 			trace.add(disjunction);
 			return;
 		}
-		if (disjunction.isTautology())
+		//always add tautologies to trace for traces of "none proves"
+		if (disjunction.isTautology()) {
+			trace.add(disjunction);
 			return;
-		if (trace.contains(disjunction))
+		}
+		if (seenDisjunctions.contains(disjunction))
 			return;
 		addToTrace(disjunction);
+		seenDisjunctions.add(disjunction);
 		workingQueue.add(disjunction);
 	}
 
@@ -252,6 +266,7 @@ public class PropositionalProver {
 			workingQueue.clear();
 			return;
 		}
-		trace.add(disjunction);
+		if (!seenDisjunctions.contains(disjunction))
+			trace.add(disjunction);
 	}
 }

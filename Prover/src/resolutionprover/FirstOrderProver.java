@@ -3,6 +3,7 @@ package resolutionprover;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -35,11 +36,16 @@ public class FirstOrderProver extends PropositionalProver {
 	@Override
 	public boolean prove() {
 		
+		List<Disjunction> propositionalDisjunctions = new LinkedList<Disjunction>();
+		
 		for (Disjunction disjunction : disjunctions) {
 			//TODO put quantifiers infront of the formula
 			disjunction = skolemize(disjunction);
-			disjunction = removeAllQuantifier(disjunction);
+			trace.add(disjunction);
+			propositionalDisjunctions.add(removeAllQuantifier(disjunction));
 		}
+		
+		disjunctions = propositionalDisjunctions;
 
 		boolean result = super.prove();
 		
@@ -54,11 +60,14 @@ public class FirstOrderProver extends PropositionalProver {
 				if (quantified.getQuantifier() == Quantifier.ForAll) {
 					formulae.add(quantified.getMatrix());
 				} else {
-					throw new IllegalStateException("cannot remove all-quantifier since formula isn't all qunatified: " + formula);
+					throw new IllegalStateException("cannot remove all-quantifier since formula isn't all quantified: " + formula);
 				}
 			}
 		}
-		return new Disjunction(formulae);
+		Disjunction resultDisjunction = new Disjunction(formulae);
+		resultDisjunction.origin.add(disjunction);
+		resultDisjunction.rule = Rule.DROP_ALL;
+		return resultDisjunction;
 	}
 
 	private Disjunction skolemize(Disjunction disjunction) {
@@ -85,7 +94,10 @@ public class FirstOrderProver extends PropositionalProver {
 				}
 			}
 		}
-		return new Disjunction(formulae);
+		Disjunction skolemizedDisjunction = new Disjunction(formulae);
+		skolemizedDisjunction.origin.add(disjunction);
+		skolemizedDisjunction.rule = Rule.SKOLEMIZATION;
+		return skolemizedDisjunction;
 	}
 
 	private Term createSkolem(Set<String> seenAllQuantified) {

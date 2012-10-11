@@ -10,7 +10,10 @@ public enum Rule {
 	NOT_TRUE("not true rule"),
 	AXIOM("axiom"),
 	CONJECTURE("conjecture"),
-	RESOLUTION("resolution rule");
+	RESOLUTION("resolution rule"),
+	SKOLEMIZATION("skolemization"),
+	DROP_ALL("dropping all-quantifier")
+	;
 	
 	public final String humanReadable;
 
