@@ -90,8 +90,6 @@ public class ResolutionProverTest {
 	  disjunction.index = 1;
 	  Collection<Disjunction> atoms = e.expand(disjunction);
 	  for (Disjunction d : e.trace) {
-		  if (!e.trace.contains(d))
-			  System.out.println("");
 		  assertTrue(d.toString(), e.trace.contains(d));
 	  }
   }

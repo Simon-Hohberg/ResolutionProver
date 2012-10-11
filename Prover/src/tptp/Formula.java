@@ -18,6 +18,8 @@ public class Formula implements Comparable<Formula>, TptpParserOutput.FofFormula
         return ((Binary)this).equals((Binary)obj);
         case Quantified:
         return ((Quantified)this).equals((Quantified)obj);
+        case Boolean:
+        return ((BooleanAtomic)this).equals((BooleanAtomic)obj);
       };
       assert false;
       return false;
