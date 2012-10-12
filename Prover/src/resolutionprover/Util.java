@@ -10,6 +10,7 @@ import tptp.BooleanAtomic;
 import tptp.Formula;
 import tptp.Kind;
 import tptp.Negation;
+import tptp.TptpParserOutput.Quantifier;
 
 
 public class Util {
@@ -58,6 +59,10 @@ public class Util {
 		return negFormula;
 	}
 	
+	public static BooleanAtomic negate(BooleanAtomic booleanAtomic) {
+    return booleanAtomic == BooleanAtomic.TRUE ? BooleanAtomic.FALSE : BooleanAtomic.TRUE;
+  }
+	
 	public static AnnotatedFormula negate(AnnotatedFormula formula) {
     formula._formula = negate(formula.getFormula());
 	  return formula;
@@ -80,6 +85,10 @@ public class Util {
 	  for (int i = 0; i < negatedAnnotatedFormulas.length; i++)
 	    negatedAnnotatedFormulas[i] = negate(annotatedFormulas.get(i));
 	  return negatedAnnotatedFormulas;
+	}
+	
+	public static Quantifier negateQuantifier(Quantifier quantifier) {
+	  return quantifier == Quantifier.Exists ? Quantifier.ForAll : Quantifier.Exists;
 	}
 
 	/**

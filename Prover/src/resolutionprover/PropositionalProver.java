@@ -24,6 +24,7 @@ public class PropositionalProver {
 	protected Set<Disjunction> seenDisjunctions;
 	protected PriorityQueue<Disjunction> workingQueue;
 	protected Map<Formula, Set<Disjunction>> resolutionMap;
+	protected List<Disjunction> rest = new LinkedList<Disjunction>();
     
 	protected Collection<Disjunction> atoms;
     
@@ -86,28 +87,40 @@ public class PropositionalProver {
 			seenDisjunctions.add(disjunction);
 			
 			Expander expander = new Expander();
-			atoms.addAll(expander.expand(disjunction));
+			Collection<Disjunction> expanded_formulae = expander.expand(disjunction);
+			atoms.addAll(expanded_formulae);
 			trace.addAll(expander.getTrace());
+			if (expanded_formulae.isEmpty()) {
+			  isTautology = true;
+			  break;
+			}
+			  
 			seenDisjunctions.addAll(expander.seenDisjunctions);
 		}
 		System.out.println("Got " + atoms.size()
 				+ " disjunctions containing atoms only.\nDoing resolution...");
 
-		workingQueue.addAll(atoms);
 
 		//do resolution
-		while (!workingQueue.isEmpty() && !isTautology) {
-			Disjunction disjunction = workingQueue.poll();
-			updateResolutionMap(disjunction);
-			doResolution(disjunction);
-		}
+		performResolution(atoms);
+		
+		
 		System.out.println("...done");
 		printTrace(trace);
 		System.out.println(String.format("\nResult: conjecture is %svalid\n\n+++++++++++ Time: %.3fs +++++++++++", isTautology ? "" : "not ", (System.currentTimeMillis()-starTime)/1000.0));
 		return isTautology;
 	}
 
-	public static void printTrace(List<Disjunction> trace) {
+	protected void performResolution(Collection<Disjunction> atoms2) {
+	  workingQueue.addAll(atoms2);
+	  while (!workingQueue.isEmpty() && !isTautology) {
+      Disjunction disjunction = workingQueue.poll();
+      updateResolutionMap(disjunction);
+      doResolution(disjunction);
+    }
+  }
+
+  public static void printTrace(List<Disjunction> trace) {
 		int commentIndent = Util.calculateCommentIndent(trace);
 		int indexLength = String.format("%d", trace.size()).length();
 		System.out.println();
@@ -127,6 +140,8 @@ public class PropositionalProver {
 			System.out.println(builder.toString());
 		}
 	}
+	
+	
 
 	/**
 	 * Applies the resolution rule on all {@link Disjunction}s that share a
@@ -139,8 +154,10 @@ public class PropositionalProver {
 		for (Formula resolutionFormula : disjunction.formulae) {
 			Set<Disjunction> resolutionDisjunctions = resolutionMap.get(Util
 					.negate(resolutionFormula));
-			if (resolutionDisjunctions == null)
+			if (resolutionDisjunctions == null) {
+			  rest.add(disjunction);
 				continue;
+			}
 			//do resolution with all resolutions sharing the current formula
 			for (Disjunction d : resolutionDisjunctions) {
 				//if resolution disjunction is the same disjunction, it contains some A and ~A, so it is always true

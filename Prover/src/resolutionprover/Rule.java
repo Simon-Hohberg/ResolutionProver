@@ -12,8 +12,9 @@ public enum Rule {
 	CONJECTURE("conjecture"),
 	RESOLUTION("resolution rule"),
 	SKOLEMIZATION("skolemization"),
-	DROP_ALL("dropping all-quantifier")
-	;
+	DROP_ALL("dropping all-quantifier"),
+	PRENEX("prenex"),
+	BOOLEAN("boolean");
 	
 	public final String humanReadable;
 

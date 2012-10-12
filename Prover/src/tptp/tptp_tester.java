@@ -1106,8 +1106,8 @@ public class tptp_tester {
         boundVariableTerm = (Term) out.createVariableTerm(boundVariable);
         switch (quantifier) {
         case ForAll:
-          return Util.negate(substituteFormula(getDeltaX(formula), boundVariableTerm, term,
-              out));
+          return substituteFormula(getDeltaX(formula), boundVariableTerm, term,
+              out);
         default:
           throw new Error("Unexpected case: " + formula.toString());
         }
@@ -1458,14 +1458,10 @@ public class tptp_tester {
       // recursively check the argument, negate the result
       return new Negation(replaceEquivalences(((Negation) inFormula)
           .getArgument()));
-    case Quantified:
-
-      break;
 
     default:
-      break;
+      return inFormula;
     }
-    return null;
   }
 
   /**
