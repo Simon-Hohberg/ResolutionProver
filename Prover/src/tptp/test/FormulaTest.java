@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -40,7 +41,7 @@ public class FormulaTest {
 //    sNot2 = new Formula[] { parseFormula("~~p"), parseFormula("~~~~p"),
 //        parseFormula("~~~~~~p") };
   }
-
+  
   @Test
   public void hashesShouldDiffer() {
     assertTrue(allHashesDiffer(dAtomic));
